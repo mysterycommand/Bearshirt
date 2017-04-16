@@ -21,23 +21,31 @@ namespace Bearshirt
 			rando = new System.Random(seed);
 			Debug.Log("BearshirtMap: " + seed);
 
+			GenerateMap();
+		}
+
+		public void GenerateMap()
+		{
 			map = GetTexture(width, height);
-		}
+			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
+				int n = 0;
+				ForRange(x - 1, x + 2, y - 1, y + 2, (int c, int r) => {
+					if (c == x && r == y) return;
+					n += (int) this[c, r];
+				});
 
-		private Texture2D GetTexture(int width, int height)
-		{
-			Texture2D tex = new Texture2D(width, height);
-			ForEach((int x, int y) => {
-				float v = rando.Next(0, 1);
-				tex.SetPixel(x, y, new Color(v, v, v));
+				if (n > 4) map.SetPixel(x, y, Color.white);
+				else if (n < 4) map.SetPixel(x, y, Color.black);
 			});
-			tex.Apply();
-			return tex;
+			map.Apply();
 		}
 
-		private int GetSeed(int? seed)
+		public float this[int x, int y]
 		{
-			return seed ?? Time.time.ToString().GetHashCode();
+			get
+			{
+				return map.GetPixel(x, y).r;
+			}
 		}
 
 		public void ForRange(
@@ -61,6 +69,24 @@ namespace Bearshirt
 		public void ForEach(Action<int, int> action = null)
 		{
 			ForRange(0, width, 0, height, action);
+		}
+
+		private Texture2D GetTexture(int width, int height)
+		{
+			Texture2D tex = new Texture2D(width, height);
+			ForEach((int x, int y) => {
+				bool isBorder = x == 0 || x == width - 1 || y == 0 || y == height - 1;
+				bool isSolid = rando.Next(0, 255) / 255f > 0.6f;
+				Color c = isBorder || isSolid ? Color.white : Color.black;
+				tex.SetPixel(x, y, c);
+			});
+			tex.Apply();
+			return tex;
+		}
+
+		private int GetSeed(int? seed)
+		{
+			return seed ?? Time.time.ToString().GetHashCode();
 		}
 	}
 }

@@ -8,12 +8,25 @@ namespace Bearshirt
 		void Start()
 		{
 			Debug.Log("BearshirtLoop");
-			BearshirtMap map = new BearshirtMap(2, 2);
+			GenerateMesh();
+		}
+
+		void Update()
+		{
+			if (Input.GetMouseButtonUp(0))
+			{
+				GenerateMesh();
+			}
+		}
+
+		private void GenerateMesh()
+		{
+			BearshirtMap map = new BearshirtMap(160, 90);
 
 			MeshFilter filter = GetComponent<MeshFilter>();
 			Mesh mesh = new Mesh();
 
-			float size = 1f,
+			float size = 0.1f,
 				left = -(map.width * size) / 2,
 				top = -(map.height * size) / 2;
 
@@ -21,9 +34,11 @@ namespace Bearshirt
 			List<int> tris = new List<int>();
 
 			map.ForEach((int x, int y) => {
-				float t = top + y * size;
+				if (map[x, y] != 1f) return;
+
+				float t = top + (y + 1) * size;
 				float r = left + (x + 1) * size;
-				float b = top + (y + 1) * size;
+				float b = top + y * size;
 				float l = left + x * size;
 
 				Vector3 lt = new Vector3(l, t, 0f);
@@ -44,6 +59,9 @@ namespace Bearshirt
 				tris.Add(verts.IndexOf(rb));
 				tris.Add(verts.IndexOf(lb));
 			});
+
+			// verts.ForEach((Vector3 vert) => Debug.Log(vert));
+			// tris.ForEach((int tri) => Debug.Log(tri));
 
 			mesh.vertices = verts.ToArray();
 			mesh.triangles = tris.ToArray();
