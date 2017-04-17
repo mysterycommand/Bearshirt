@@ -27,6 +27,7 @@ namespace Bearshirt
 		public void Generate()
 		{
 			texture = GetTexture(0.6f);
+
 			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
 				int n = 0;
 				ForRange(x - 1, x + 2, y - 1, y + 2, (int c, int r) => {
@@ -37,6 +38,7 @@ namespace Bearshirt
 				if (n > 4) texture.SetPixel(x, y, Color.white);
 				else if (n < 4) texture.SetPixel(x, y, Color.black);
 			});
+
 			texture.Apply();
 		}
 
@@ -74,12 +76,17 @@ namespace Bearshirt
 		private Texture2D GetTexture(float fill)
 		{
 			Texture2D tex = new Texture2D(width, height);
+
 			ForEach((int x, int y) => {
-				bool isBorder = x == 0 || x == width - 1 || y == 0 || y == height - 1;
-				bool isSolid = rando.Next(0, 255) / 255f > fill;
-				Color c = isBorder || isSolid ? Color.white : Color.black;
+				bool isBorder = x == 0 || x == width - 1 || y == 0 || y == height - 1,
+					isSolid = rando.Next(0, 255) / 255f > fill;
+
+				Color c = isBorder || isSolid ?
+					Color.white :
+					Color.black;
 				tex.SetPixel(x, y, c);
 			});
+
 			tex.Apply();
 			return tex;
 		}

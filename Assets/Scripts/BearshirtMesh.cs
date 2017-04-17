@@ -5,30 +5,29 @@ namespace Bearshirt
 {
 	public class BearshirtMesh
 	{
-		public int width { get; private set; }
-		public int height { get; private set; }
-
 		public List<Vector3> verts { get; private set; }
 		public Dictionary<string, int> indices { get; private set; }
 		public List<int> tris { get; private set; }
 
-		private BearshirtMap map;
+		public float top { get; private set; }
+		public float left { get; private set; }
 
-		public BearshirtMesh(int _width, int _height)
+		public BearshirtMap map { get; private set; }
+		public float size { get; private set; }
+
+		public BearshirtMesh(BearshirtMap _map, float _size)
 		{
-			width = _width;
-			height = _height;
-
-			map = new BearshirtMap(width, height);
+			map = _map;
+			size = _size;
 		}
 
-		public Mesh Generate(float size)
+		public Mesh Generate()
 		{
 			map.Generate();
 			Mesh mesh = new Mesh();
 
-			float left = -(map.width * size) / 2,
-				top = -(map.height * size) / 2;
+			top = -(map.height * size) / 2;
+			left = -(map.width * size) / 2;
 
 			verts = new List<Vector3>();
 			indices = new Dictionary<string, int>();
@@ -37,15 +36,15 @@ namespace Bearshirt
 			map.ForEach((int x, int y) => {
 				if (map[x, y] != 1f) return;
 
-				float t = top + (y + 1) * size;
-				float r = left + (x + 1) * size;
-				float b = top + y * size;
-				float l = left + x * size;
+				float t = top + (y + 1) * size,
+					r = left + (x + 1) * size,
+					b = top + y * size,
+					l = left + x * size;
 
-				string lt = l + "," + t;
-				string rt = r + "," + t;
-				string rb = r + "," + b;
-				string lb = l + "," + b;
+				string lt = l + "," + t,
+					rt = r + "," + t,
+					rb = r + "," + b,
+					lb = l + "," + b;
 
 				if (!indices.ContainsKey(lt))
 				{
