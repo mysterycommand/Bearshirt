@@ -9,7 +9,6 @@ namespace Bearshirt
 		public int height { get; private set; }
 		private int seed;
 		private System.Random rando;
-
 		private Texture2D map;
 
 		public BearshirtMap(int _width, int _height)
@@ -21,12 +20,16 @@ namespace Bearshirt
 			rando = new System.Random(seed);
 			Debug.Log("BearshirtMap: " + seed);
 
+			// Debug.Log("GenerateMap start: " + Environment.TickCount);
 			GenerateMap();
+			// Debug.Log("GenerateMap end: " + Environment.TickCount);
 		}
 
 		public void GenerateMap()
 		{
+			// Debug.Log("GetTexture start: " + Environment.TickCount);
 			map = GetTexture(width, height);
+			// Debug.Log("GetTexture end: " + Environment.TickCount);
 			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
 				int n = 0;
 				ForRange(x - 1, x + 2, y - 1, y + 2, (int c, int r) => {

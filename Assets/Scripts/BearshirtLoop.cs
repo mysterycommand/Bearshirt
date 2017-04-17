@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bearshirt
@@ -31,8 +32,10 @@ namespace Bearshirt
 				top = -(map.height * size) / 2;
 
 			List<Vector3> verts = new List<Vector3>();
+			Dictionary<string, int> indices = new Dictionary<string, int>();
 			List<int> tris = new List<int>();
 
+			// Debug.Log("ForEach start: " + Environment.TickCount);
 			map.ForEach((int x, int y) => {
 				if (map[x, y] != 1f) return;
 
@@ -41,24 +44,44 @@ namespace Bearshirt
 				float b = top + y * size;
 				float l = left + x * size;
 
-				Vector3 lt = new Vector3(l, t, 0f);
-				Vector3 rt = new Vector3(r, t, 0f);
-				Vector3 rb = new Vector3(r, b, 0f);
-				Vector3 lb = new Vector3(l, b, 0f);
+				string lt = l + "," + t;
+				string rt = r + "," + t;
+				string rb = r + "," + b;
+				string lb = l + "," + b;
 
-				if (!verts.Contains(lt)) verts.Add(lt);
-				if (!verts.Contains(rt)) verts.Add(rt);
-				if (!verts.Contains(rb)) verts.Add(rb);
-				if (!verts.Contains(lb)) verts.Add(lb);
+				if (!indices.ContainsKey(lt))
+				{
+					indices[lt] = verts.Count;
+					verts.Add(new Vector3(l, t, 0f));
+				}
 
-				tris.Add(verts.IndexOf(lt));
-				tris.Add(verts.IndexOf(rt));
-				tris.Add(verts.IndexOf(rb));
+				if (!indices.ContainsKey(rt))
+				{
+					indices[rt] = verts.Count;
+					verts.Add(new Vector3(r, t, 0f));
+				}
 
-				tris.Add(verts.IndexOf(lt));
-				tris.Add(verts.IndexOf(rb));
-				tris.Add(verts.IndexOf(lb));
+				if (!indices.ContainsKey(rb))
+				{
+					indices[rb] = verts.Count;
+					verts.Add(new Vector3(r, b, 0f));
+				}
+
+				if (!indices.ContainsKey(lb))
+				{
+					indices[lb] = verts.Count;
+					verts.Add(new Vector3(l, b, 0f));
+				}
+
+				tris.Add(indices[lt]);
+				tris.Add(indices[rt]);
+				tris.Add(indices[rb]);
+
+				tris.Add(indices[lt]);
+				tris.Add(indices[rb]);
+				tris.Add(indices[lb]);
 			});
+			// Debug.Log("ForEach end: " + Environment.TickCount);
 
 			// verts.ForEach((Vector3 vert) => Debug.Log(vert));
 			// tris.ForEach((int tri) => Debug.Log(tri));
