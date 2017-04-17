@@ -17,7 +17,7 @@ namespace Bearshirt
 			width = _width;
 			height = _height;
 
-			seed = GetSeed(null);
+			seed = GetSeed(5);
 			rando = new System.Random(seed);
 			Debug.Log("BearshirtMap: " + seed);
 

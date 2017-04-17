@@ -17,7 +17,7 @@ namespace Bearshirt
 			filter = GetComponent<MeshFilter>();
 
 			map = new BearshirtMap(16, 9);
-			mesh = new BearshirtMesh(map, 10f);
+			mesh = new BearshirtMesh(map, 1f);
 			GenerateLevel();
 		}
 
