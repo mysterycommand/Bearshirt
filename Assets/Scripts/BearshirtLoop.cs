@@ -16,8 +16,8 @@ namespace Bearshirt
 
 			filter = GetComponent<MeshFilter>();
 
-			map = new BearshirtMap(80, 45);
-			mesh = new BearshirtMesh(map, 2f);
+			map = new BearshirtMap(16, 9);
+			mesh = new BearshirtMesh(map, 10f);
 			GenerateLevel();
 		}
 
@@ -59,16 +59,17 @@ namespace Bearshirt
 			});
 
 			// right
+			int count = outline.Count;
 			map.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
 				float t = mesh.top + (y + 1) * mesh.size,
 					r = mesh.left + (x + 1) * mesh.size;
 
 				string rt = r + "," + t;
-				outline.Add(mesh.verts[mesh.indices[rt]]);
+				outline.Insert(count, mesh.verts[mesh.indices[rt]]);
 			});
 
 			// bottom
-			int count = outline.Count;
+			count = outline.Count;
 			map.ForRange(0, map.width, 0, 1, (int x, int y) => {
 				float r = mesh.left + (x + 1) * mesh.size,
 					b = mesh.top + y * mesh.size;
@@ -78,14 +79,16 @@ namespace Bearshirt
 			});
 
 			// left
-			count = outline.Count;
 			map.ForRange(0, 1, 0, map.height, (int x, int y) => {
 				float b = mesh.top + y * mesh.size,
 					l = mesh.left + x * mesh.size;
 
 				string lb = l + "," + b;
-				outline.Insert(count, mesh.verts[mesh.indices[lb]]);
+				outline.Add(mesh.verts[mesh.indices[lb]]);
 			});
+
+			// close
+			outline.Add(outline[0]);
 
 			EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
 			List<Vector2> points = outline.ConvertAll<Vector2>((Vector3 vert) => {
