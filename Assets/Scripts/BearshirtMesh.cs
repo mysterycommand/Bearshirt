@@ -5,9 +5,9 @@ namespace Bearshirt
 {
 	public class BearshirtMesh
 	{
-		public List<Vector3> verts { get; private set; }
+		public List<Vector3> vertices { get; private set; }
 		public Dictionary<string, int> indices { get; private set; }
-		public List<int> tris { get; private set; }
+		public List<int> triangles { get; private set; }
 
 		public float top { get; private set; }
 		public float left { get; private set; }
@@ -29,9 +29,9 @@ namespace Bearshirt
 			top = -(map.height * size) / 2;
 			left = -(map.width * size) / 2;
 
-			verts = new List<Vector3>();
+			vertices = new List<Vector3>();
 			indices = new Dictionary<string, int>();
-			tris = new List<int>();
+			triangles = new List<int>();
 
 			map.ForEach((int x, int y) => {
 				if (map[x, y] != 1f) return;
@@ -48,39 +48,39 @@ namespace Bearshirt
 
 				if (!indices.ContainsKey(lt))
 				{
-					indices[lt] = verts.Count;
-					verts.Add(new Vector3(l, t, 0f));
+					indices[lt] = vertices.Count;
+					vertices.Add(new Vector3(l, t, 0f));
 				}
 
 				if (!indices.ContainsKey(rt))
 				{
-					indices[rt] = verts.Count;
-					verts.Add(new Vector3(r, t, 0f));
+					indices[rt] = vertices.Count;
+					vertices.Add(new Vector3(r, t, 0f));
 				}
 
 				if (!indices.ContainsKey(rb))
 				{
-					indices[rb] = verts.Count;
-					verts.Add(new Vector3(r, b, 0f));
+					indices[rb] = vertices.Count;
+					vertices.Add(new Vector3(r, b, 0f));
 				}
 
 				if (!indices.ContainsKey(lb))
 				{
-					indices[lb] = verts.Count;
-					verts.Add(new Vector3(l, b, 0f));
+					indices[lb] = vertices.Count;
+					vertices.Add(new Vector3(l, b, 0f));
 				}
 
-				tris.Add(indices[lt]);
-				tris.Add(indices[rt]);
-				tris.Add(indices[rb]);
+				triangles.Add(indices[lt]);
+				triangles.Add(indices[rt]);
+				triangles.Add(indices[rb]);
 
-				tris.Add(indices[lt]);
-				tris.Add(indices[rb]);
-				tris.Add(indices[lb]);
+				triangles.Add(indices[lt]);
+				triangles.Add(indices[rb]);
+				triangles.Add(indices[lb]);
 			});
 
-			mesh.vertices = verts.ToArray();
-			mesh.triangles = tris.ToArray();
+			mesh.vertices = vertices.ToArray();
+			mesh.triangles = triangles.ToArray();
 			mesh.RecalculateNormals();
 
 			return mesh;

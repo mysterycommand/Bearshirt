@@ -55,7 +55,7 @@ namespace Bearshirt
 					l = mesh.left + x * mesh.size;
 
 				string lt = l + "," + t;
-				outline.Add(mesh.verts[mesh.indices[lt]]);
+				outline.Add(mesh.vertices[mesh.indices[lt]]);
 			});
 
 			// right
@@ -65,7 +65,7 @@ namespace Bearshirt
 					r = mesh.left + (x + 1) * mesh.size;
 
 				string rt = r + "," + t;
-				outline.Insert(count, mesh.verts[mesh.indices[rt]]);
+				outline.Insert(count, mesh.vertices[mesh.indices[rt]]);
 			});
 
 			// bottom
@@ -75,7 +75,7 @@ namespace Bearshirt
 					b = mesh.top + y * mesh.size;
 
 				string rb = r + "," + b;
-				outline.Insert(count, mesh.verts[mesh.indices[rb]]);
+				outline.Insert(count, mesh.vertices[mesh.indices[rb]]);
 			});
 
 			// left
@@ -84,7 +84,7 @@ namespace Bearshirt
 					l = mesh.left + x * mesh.size;
 
 				string lb = l + "," + b;
-				outline.Add(mesh.verts[mesh.indices[lb]]);
+				outline.Add(mesh.vertices[mesh.indices[lb]]);
 			});
 
 			// close
