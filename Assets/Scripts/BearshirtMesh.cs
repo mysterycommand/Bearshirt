@@ -12,10 +12,10 @@ namespace Bearshirt
 		public float top { get; private set; }
 		public float left { get; private set; }
 
-		public BearshirtMap map { get; private set; }
+		public IntMap map { get; private set; }
 		public float size { get; private set; }
 
-		public BearshirtMesh(BearshirtMap _map, float _size)
+		public BearshirtMesh(IntMap _map, float _size)
 		{
 			map = _map;
 			size = _size;
@@ -23,7 +23,6 @@ namespace Bearshirt
 
 		public Mesh Generate()
 		{
-			map.Generate();
 			Mesh mesh = new Mesh();
 
 			top = -(map.height * size) / 2;

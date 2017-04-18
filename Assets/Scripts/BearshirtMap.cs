@@ -29,7 +29,7 @@ namespace Bearshirt
 		private void Randomize(int fill)
 		{
 			ForEach((int x, int y) => {
-				bool isBorder = x == 0 || x == width - 1 || y == 0 || y == height - 1,
+				bool isBorder = IsBorder(x, y),
 					isSolid = rando.Next(0, 100) > fill;
 
 				int val = isBorder || isSolid ? 1 : 0;
@@ -43,7 +43,7 @@ namespace Bearshirt
 				int n = 0;
 				ForRange(x - 1, x + 2, y - 1, y + 2, (int c, int r) => {
 					if (c == x && r == y) return;
-					n += (int) this[c, r];
+					n += this[c, r];
 				});
 
 				if (n > keep) this[x, y] = 1;
