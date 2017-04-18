@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Bearshirt
 {
-	public class BearshirtList2D<T> {
+	public class BearshirtList2D<T> where T : new() {
 
 		public int width { get; private set; }
 		public int height { get; private set; }
@@ -15,6 +15,9 @@ namespace Bearshirt
 			width = _width;
 			height = _height;
 			list = new List<T>(width * height);
+			ForEach((int x, int y) => {
+				list.Add(new T());
+			});
 		}
 
 		public T this[int x, int y]
@@ -22,6 +25,11 @@ namespace Bearshirt
 			get
 			{
 				return list[y * width + x];
+			}
+
+			set
+			{
+				list[y * width + x] = value;
 			}
 		}
 
