@@ -9,14 +9,16 @@ namespace Bearshirt
 
 		public BearshirtMap(int w, int h) : base(w, h)
 		{
-			seed = GetSeed(5);
-			rando = new System.Random(seed);
 			Debug.Log("BearshirtMap: " + seed);
 			Generate();
 		}
 
 		public void Generate()
 		{
+			// seed = GetSeed(null);
+			seed = GetSeed(5);
+			rando = new System.Random(seed);
+
 			Randomize(60);
 			Smooth(4);
 		}

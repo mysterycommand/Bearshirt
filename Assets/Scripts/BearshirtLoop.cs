@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bearshirt
@@ -14,13 +15,14 @@ namespace Bearshirt
 		private BearshirtMap map;
 		private BearshirtMesh mesh;
 
+		private List<Vector3> edgeVertices;
+
 		void Start()
 		{
 			Debug.Log("BearshirtLoop");
 
+			// map = new BearshirtMap(80, 45);
 			map = new BearshirtMap(16, 9);
-			map.Generate();
-
 			mesh = new BearshirtMesh(map, 1f);
 
 			GenerateLevel();
@@ -34,8 +36,20 @@ namespace Bearshirt
 			}
 		}
 
+		void OnDrawGizmos()
+		{
+			Debug.Log("OnDrawGizmos: " + edgeVertices.Count);
+			if (edgeVertices.Count == 0) return;
+			foreach (Vector3 vertex in edgeVertices)
+			{
+				Gizmos.color = Color.yellow;
+				Gizmos.DrawCube(vertex, Vector3.one / 4);
+			}
+		}
+
 		private void GenerateLevel()
 		{
+			map.Generate();
 			walls.mesh = mesh.Generate();
 
 			IntMap edgeMap = new IntMap(map.width, map.height);
@@ -48,7 +62,22 @@ namespace Bearshirt
 			BearshirtMesh edgeMesh = new BearshirtMesh(edgeMap, 1f);
 			edges.mesh = edgeMesh.Generate();
 
-			GenerateColliders();
+			// foreach (Vector3 vertex in mesh.vertices)
+			// {
+			// 	// string key = vertex.x + "," + vertex.y;
+			// 	// Debug.Log(mesh.indices[key]);
+
+			// 	int x = (int) ((vertex.x - mesh.left) / mesh.size);
+			// 	int y = (int) ((vertex.y - mesh.top) / mesh.size);
+			// 	Debug.Log(x + ", " + y);
+			// }
+
+			edgeVertices = mesh.vertices.FindAll(new Predicate<Vector3>((Vector3 vertex) => {
+				string key = vertex.x + "," + vertex.y;
+				return mesh.triangleCount[key] < 6;
+			}));
+
+			// GenerateColliders();
 		}
 
 		private void RemoveColliders()

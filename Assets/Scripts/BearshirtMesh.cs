@@ -8,6 +8,7 @@ namespace Bearshirt
 		public List<Vector3> vertices { get; private set; }
 		public Dictionary<string, int> indices { get; private set; }
 		public List<int> triangles { get; private set; }
+		public Dictionary<string, int> triangleCount { get; private set; }
 
 		public float top { get; private set; }
 		public float left { get; private set; }
@@ -31,6 +32,7 @@ namespace Bearshirt
 			vertices = new List<Vector3>();
 			indices = new Dictionary<string, int>();
 			triangles = new List<int>();
+			triangleCount = new Dictionary<string, int>();
 
 			map.ForEach((int x, int y) => {
 				if (map[x, y] != 1f) return;
@@ -48,34 +50,44 @@ namespace Bearshirt
 				if (!indices.ContainsKey(lt))
 				{
 					indices[lt] = vertices.Count;
+					triangleCount[lt] = 0;
 					vertices.Add(new Vector3(l, t, 0f));
 				}
 
 				if (!indices.ContainsKey(rt))
 				{
 					indices[rt] = vertices.Count;
+					triangleCount[rt] = 0;
 					vertices.Add(new Vector3(r, t, 0f));
 				}
 
 				if (!indices.ContainsKey(rb))
 				{
 					indices[rb] = vertices.Count;
+					triangleCount[rb] = 0;
 					vertices.Add(new Vector3(r, b, 0f));
 				}
 
 				if (!indices.ContainsKey(lb))
 				{
 					indices[lb] = vertices.Count;
+					triangleCount[lb] = 0;
 					vertices.Add(new Vector3(l, b, 0f));
 				}
 
 				triangles.Add(indices[lt]);
+				triangleCount[lt]++;
 				triangles.Add(indices[rt]);
+				triangleCount[rt]++;
 				triangles.Add(indices[rb]);
+				triangleCount[rb]++;
 
 				triangles.Add(indices[lt]);
+				triangleCount[lt]++;
 				triangles.Add(indices[rb]);
+				triangleCount[rb]++;
 				triangles.Add(indices[lb]);
+				triangleCount[lb]++;
 			});
 
 			mesh.vertices = vertices.ToArray();
