@@ -50,7 +50,7 @@ namespace Bearshirt
 			List<Vector3> outline = new List<Vector3>();
 
 			// top
-			map.ForRange(0, map.width, map.height - 1, map.height, (int x, int y) => {
+			map.list.ForRange(0, map.width, map.height - 1, map.height, (int x, int y) => {
 				float t = mesh.top + (y + 1) * mesh.size,
 					l = mesh.left + x * mesh.size;
 
@@ -60,7 +60,7 @@ namespace Bearshirt
 
 			// right
 			int count = outline.Count;
-			map.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
+			map.list.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
 				float t = mesh.top + (y + 1) * mesh.size,
 					r = mesh.left + (x + 1) * mesh.size;
 
@@ -70,7 +70,7 @@ namespace Bearshirt
 
 			// bottom
 			count = outline.Count;
-			map.ForRange(0, map.width, 0, 1, (int x, int y) => {
+			map.list.ForRange(0, map.width, 0, 1, (int x, int y) => {
 				float r = mesh.left + (x + 1) * mesh.size,
 					b = mesh.top + y * mesh.size;
 
@@ -79,7 +79,7 @@ namespace Bearshirt
 			});
 
 			// left
-			map.ForRange(0, 1, 0, map.height, (int x, int y) => {
+			map.list.ForRange(0, 1, 0, map.height, (int x, int y) => {
 				float b = mesh.top + y * mesh.size,
 					l = mesh.left + x * mesh.size;
 
