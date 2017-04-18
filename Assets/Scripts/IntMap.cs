@@ -1,36 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Bearshirt
 {
-	public class BearshirtList2D<T> where T : new() {
+	public class IntMap {
 
 		public int width { get; private set; }
 		public int height { get; private set; }
 
-		private List<T> list;
+		private int[,] cells;
 
-		public BearshirtList2D(int _width, int _height)
+		public IntMap(int w, int h)
 		{
-			width = _width;
-			height = _height;
-			list = new List<T>(width * height);
+			width = w;
+			height = h;
+			cells = new int[width, height];
 			ForEach((int x, int y) => {
-				list.Add(new T());
+				cells[x, y] = 0;
 			});
 		}
 
-		public T this[int x, int y]
+		public int this[int x, int y]
 		{
-			get
-			{
-				return list[y * width + x];
-			}
-
-			set
-			{
-				list[y * width + x] = value;
-			}
+			get { return cells[x, y]; }
+			set { cells[x, y] = value; }
 		}
 
 		public void ForRange(

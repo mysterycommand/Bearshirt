@@ -33,8 +33,8 @@ namespace Bearshirt
 			indices = new Dictionary<string, int>();
 			triangles = new List<int>();
 
-			map.list.ForEach((int x, int y) => {
-				if (map.list[x, y] != 1f) return;
+			map.ForEach((int x, int y) => {
+				if (map[x, y] != 1f) return;
 
 				float t = top + (y + 1) * size,
 					r = left + (x + 1) * size,
