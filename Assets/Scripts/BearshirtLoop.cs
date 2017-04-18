@@ -5,7 +5,11 @@ namespace Bearshirt
 {
 	public class BearshirtLoop : MonoBehaviour
 	{
-		private MeshFilter filter;
+		[SerializeField]
+		private MeshFilter walls;
+
+		[SerializeField]
+		private MeshFilter edges;
 
 		private BearshirtMap map;
 		private BearshirtMesh mesh;
@@ -14,10 +18,11 @@ namespace Bearshirt
 		{
 			Debug.Log("BearshirtLoop");
 
-			filter = GetComponent<MeshFilter>();
-
 			map = new BearshirtMap(16, 9);
+			map.Generate();
+
 			mesh = new BearshirtMesh(map, 1f);
+
 			GenerateLevel();
 		}
 
@@ -31,7 +36,18 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
-			filter.mesh = mesh.Generate();
+			walls.mesh = mesh.Generate();
+
+			IntMap edgeMap = new IntMap(map.width, map.height);
+			map.ForEach((int x, int y) => {
+				if (map.IsEdge(x, y))
+				{
+					edgeMap[x, y] = 1;
+				}
+			});
+			BearshirtMesh edgeMesh = new BearshirtMesh(edgeMap, 1f);
+			edges.mesh = edgeMesh.Generate();
+
 			GenerateColliders();
 		}
 
