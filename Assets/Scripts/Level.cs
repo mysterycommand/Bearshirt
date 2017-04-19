@@ -38,12 +38,6 @@ namespace Bearshirt
 
 		void Update()
 		{
-			if (Input.GetMouseButtonUp(0))
-			{
-				Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-				ToggleCell(worldPosition);
-			}
-
 			if (Input.GetButtonDown("Jump") && heroController.velocity != Vector2.zero)
 			{
 				float px = hero.transform.position.x + heroController.velocity.normalized.x;
