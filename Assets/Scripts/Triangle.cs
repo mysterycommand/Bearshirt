@@ -21,6 +21,7 @@
 		}
 
 		public int this[int i] { get { return vertexIndices[i]; } }
+		public bool Contains(int i) { return a == i || b == i || c == i; }
 
 	}
 }

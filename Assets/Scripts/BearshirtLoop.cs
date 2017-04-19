@@ -83,12 +83,10 @@ namespace Bearshirt
 			RemoveColliders();
 
 			List<List<Vector2>> outlines = wallOutlines.Generate();
-			// outlines.ForEach((List<Vector2> outline) => {
-			// 	EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
-			// 	collider.points = outline.ToArray();
-			// });
-			EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
-			collider.points = outlines[0].ToArray();
+			outlines.ForEach((List<Vector2> outline) => {
+				EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
+				collider.points = outline.ToArray();
+			});
 		}
 	}
 }

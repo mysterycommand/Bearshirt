@@ -49,6 +49,7 @@ namespace Bearshirt
 			List<Vector3> edge = new List<Vector3>();
 			edge.Add(vertex);
 			FollowEdge(edge, vertex);
+			edge.Add(vertex);
 			return edge;
 		}
 
@@ -62,22 +63,23 @@ namespace Bearshirt
 					vb = mesh.vertices[t.b],
 					vc = mesh.vertices[t.c];
 
-				if (edgeVertices.Contains(va) && !checkedVertices.Contains(va)) vertices.Add(va);
-				if (edgeVertices.Contains(vb) && !checkedVertices.Contains(vb)) vertices.Add(vb);
-				if (edgeVertices.Contains(vc) && !checkedVertices.Contains(vc)) vertices.Add(vc);
+				if (!checkedVertices.Contains(va)) vertices.Add(va);
+				if (!checkedVertices.Contains(vb)) vertices.Add(vb);
+				if (!checkedVertices.Contains(vc)) vertices.Add(vc);
 			});
 
-			if (vertices.Count > 0)
-			{
-				Vector3 next = vertices[0];
-				checkedVertices.Add(next);
-				edge.Add(next);
-				FollowEdge(edge, next);
-			}
-			else
-			{
-				edge.Add(edge[0]);
-			}
+			vertices = vertices.FindAll(new Predicate<Vector3>((Vector3 v) => {
+				return mesh.vertexTriangles[v].FindAll(new Predicate<Triangle>((Triangle t) => {
+					return t.Contains(mesh.vertexIndices[vertex]);
+				})).Count == 1;
+			}));
+
+			if (vertices.Count == 0) return;
+
+			Vector3 next = vertices[0];
+			checkedVertices.Add(next);
+			edge.Add(next);
+			FollowEdge(edge, next);
 		}
 	}
 }
