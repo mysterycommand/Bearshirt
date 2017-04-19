@@ -55,8 +55,6 @@ namespace Bearshirt
 				body.mass * ((ty - cy) / Time.deltaTime) :
 				0f;
 
-			Debug.Log(IsOnGround());
-
 			Vector2 force = new Vector2(fx, fy);
 			body.AddForce(force);
 		}
@@ -69,7 +67,6 @@ namespace Bearshirt
 		{
 			float radius = transform.localScale.y;
 			Collider2D hit = Physics2D.OverlapCircle(down.position, radius / 8, groundMask);
-			Debug.Log((hit != null) + ": " + down.position + ", " + radius);
 			return hit != null;
 		}
 	}
