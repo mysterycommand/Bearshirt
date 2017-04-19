@@ -11,11 +11,11 @@ namespace Bearshirt
 		[SerializeField]
 		private MeshFilter edges;
 
-		private ProceduralGrid wallMap;
+		private ProceduralGrid wallGrid;
 		private GridMesh wallMesh;
 		private MeshOutlines wallOutlines;
 
-		private IntGrid edgeMap;
+		private IntGrid edgeGrid;
 		private GridMesh edgeMesh;
 
 		private List<Vector3> edgeVertices;
@@ -24,8 +24,8 @@ namespace Bearshirt
 		{
 			Debug.Log("BearshirtLoop");
 
-			wallMap = new ProceduralGrid(80, 45);
-			wallMesh = new GridMesh(wallMap, 1f);
+			wallGrid = new ProceduralGrid(80, 45);
+			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
 			GenerateLevel();
@@ -41,14 +41,14 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
-			wallMap.Generate();
+			wallGrid.Generate();
 			walls.mesh = wallMesh.Generate();
 
-			edgeMap = new IntGrid(wallMap.width, wallMap.height);
-			wallMap.ForEach((int x, int y) => {
-				edgeMap[x, y] = wallMap.IsEdge(x, y) ? 1 : 0;
+			edgeGrid = new IntGrid(wallGrid.width, wallGrid.height);
+			wallGrid.ForEach((int x, int y) => {
+				edgeGrid[x, y] = wallGrid.IsEdge(x, y) ? 1 : 0;
 			});
-			edgeMesh = new GridMesh(edgeMap, wallMesh.size);
+			edgeMesh = new GridMesh(edgeGrid, wallMesh.size);
 			edges.mesh = edgeMesh.Generate();
 
 			AddColliders();

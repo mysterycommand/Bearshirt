@@ -20,35 +20,7 @@ namespace Bearshirt
 
 			Randomize(60);
 			Smooth(4);
-
-			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
-				bool isEmptyUp = IsEmpty(x, y + 1);
-				bool isEmptyRt = IsEmpty(x + 1, y);
-				bool isEmptyDn = IsEmpty(x, y - 1);
-				bool isEmptyLf = IsEmpty(x - 1, y);
-
-				bool isOrphan = isEmptyUp && isEmptyRt && isEmptyDn && isEmptyLf;
-				bool isCorner = (
-					(isEmptyUp && isEmptyRt) ||
-					(isEmptyRt && isEmptyDn) ||
-					(isEmptyDn && isEmptyLf) ||
-					(isEmptyLf && isEmptyUp)
-				);
-				bool isChecky = (
-					(isOrphan && (
-						IsSolid(x + 1, y + 1) ||
-						IsSolid(x + 1, y - 1) ||
-						IsSolid(x - 1, y - 1) ||
-						IsSolid(x - 1, y + 1)
-					)) ||
-					((isEmptyUp && isEmptyRt) && IsSolid(x + 1, y + 1)) ||
-					((isEmptyRt && isEmptyDn) && IsSolid(x + 1, y - 1)) ||
-					((isEmptyDn && isEmptyLf) && IsSolid(x - 1, y - 1)) ||
-					((isEmptyLf && isEmptyUp) && IsSolid(x - 1, y + 1))
-				);
-
-				if (isChecky) this[x, y] = 0;
-			});
+			NoKissing();
 		}
 
 		private int GetSeed(int? seed)
@@ -78,6 +50,41 @@ namespace Bearshirt
 
 				if (n > keep) this[x, y] = 1;
 				else if (n < keep) this[x, y] = 0;
+			});
+		}
+
+		private void NoKissing()
+		{
+			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
+				int up = y + 1,
+					rt = x + 1,
+					dn = y - 1,
+					lf = x - 1;
+
+				// if it's empty up, right, down, and left, we'll call it an orphan
+				bool isOrphan = (
+						IsEmpty(x, up) &&
+						IsEmpty(rt, y) &&
+						IsEmpty(x, dn) &&
+						IsEmpty(lf, y)
+					);
+
+				// if it's "checkerboarding" with another cell, we'll call it kissing
+				// e.g. "up" and "right" are empty and "up-and-to-the-right" is solid
+				bool isKissing = (
+					(isOrphan && (
+						IsSolid(rt, up) ||
+						IsSolid(rt, dn) ||
+						IsSolid(lf, dn) ||
+						IsSolid(lf, up)
+					)) ||
+					(IsEmpty(x, up) && IsEmpty(rt, y) && IsSolid(rt, up)) ||
+					(IsEmpty(rt, y) && IsEmpty(x, dn) && IsSolid(rt, dn)) ||
+					(IsEmpty(x, dn) && IsEmpty(lf, y) && IsSolid(lf, dn)) ||
+					(IsEmpty(lf, y) && IsEmpty(x, up) && IsSolid(lf, up))
+				);
+
+				if (isKissing) this[x, y] = 0;
 			});
 		}
 	}

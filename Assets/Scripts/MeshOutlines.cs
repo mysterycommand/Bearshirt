@@ -10,7 +10,7 @@ namespace Bearshirt
 
 		public GridMesh mesh { get; private set; }
 
-		private Dictionary<Vector3, int> vertexOutlineCount;
+		private HashSet<Vector3> checkedVertices;
 
 		public MeshOutlines(GridMesh _mesh)
 		{
@@ -21,17 +21,15 @@ namespace Bearshirt
 		{
 			outlines = new List<List<Vector3>>();
 
-			vertexOutlineCount = new Dictionary<Vector3, int>();
+			checkedVertices = new HashSet<Vector3>();
 
 			mesh.vertices
 				.FindAll(new Predicate<Vector3>((Vector3 vertex) => {
 					bool isOutline = mesh.vertexTriangles[vertex].Count < 6;
-					if (isOutline) vertexOutlineCount[vertex] = GetOutlineCount(vertex);
 					return isOutline;
 				}))
 				.ForEach((Vector3 vertex) => {
-					if (vertexOutlineCount[vertex] == 0) return;
-					--vertexOutlineCount[vertex];
+					if (checkedVertices.Contains(vertex)) return;
 					outlines.Add(GetOutline(vertex));
 				});
 
@@ -42,41 +40,17 @@ namespace Bearshirt
 			});
 		}
 
-		private int GetOutlineCount(Vector3 vertex)
-		{
-			// bool isOuterBound = (
-			// 	vertex.y == mesh.top ||
-			// 	vertex.x == mesh.right ||
-			// 	vertex.y == mesh.bottom ||
-			// 	vertex.x == mesh.left
-			// );
-			// if (isOuterBound) return 1;
-
-			// int x = (int) ((vertex.x - mesh.left) / mesh.size);
-			// int y = (int) ((vertex.y - mesh.top) / mesh.size);
-			// IntGrid grid = mesh.grid;
-
-			// bool isKissing = (
-			// 	((grid.IsEdge(x, y) && grid.IsEdge(x - 1, y - 1)) &&
-			// 	(grid.IsEmpty(x - 1, y) && grid.IsEmpty(x, y - 1))) ||
-			// 	((grid.IsEdge(x - 1, y) && grid.IsEdge(x, y - 1)) &&
-			// 	(grid.IsEmpty(x, y) && grid.IsEmpty(x - 1, y - 1)))
-			// );
-			// if (isKissing) return 2;
-
-			return 1;
-		}
-
 		private List<Vector3> GetOutline(Vector3 vertex)
 		{
 			List<Vector3> outline = new List<Vector3>();
+			checkedVertices.Add(vertex);
 			outline.Add(vertex);
-			Follow(outline, vertex);
+			Trace(outline, vertex);
 			outline.Add(vertex);
 			return outline;
 		}
 
-		private void Follow(List<Vector3> outline, Vector3 vertex)
+		private void Trace(List<Vector3> outline, Vector3 vertex)
 		{
 			List<Triangle> triangles = mesh.vertexTriangles[vertex];
 			List<Vector3> vertices = new List<Vector3>();
@@ -85,9 +59,7 @@ namespace Bearshirt
 				for (int i = 0; i < 3; ++i)
 				{
 					Vector3 v = mesh.vertices[t[i]];
-					bool isOutline = vertexOutlineCount.ContainsKey(v);
-					bool isChecked = isOutline && vertexOutlineCount[v] == 0;
-					if (!isChecked) vertices.Add(v);
+					if (!checkedVertices.Contains(v)) vertices.Add(v);
 				}
 			});
 
@@ -100,9 +72,9 @@ namespace Bearshirt
 			if (vertices.Count == 0) return;
 
 			Vector3 next = vertices[0];
-			--vertexOutlineCount[next];
+			checkedVertices.Add(next);
 			outline.Add(next);
-			Follow(outline, next);
+			Trace(outline, next);
 		}
 	}
 }
