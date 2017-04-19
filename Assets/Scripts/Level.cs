@@ -5,18 +5,13 @@ namespace Bearshirt
 {
 	public class Level : MonoBehaviour
 	{
-		[SerializeField]
-		private MeshFilter walls;
+		[SerializeField] private MeshFilter walls;
+		[SerializeField] private MeshFilter edges;
+		[SerializeField] private GameObject Hero;
+		[SerializeField] private GameObject Door;
 
-		[SerializeField]
-		private MeshFilter edges;
-
-		[SerializeField]
-		private GameObject Hero;
 		private GameObject hero;
-
-		[SerializeField]
-		private GameObject Door;
+		private HeroController heroController;
 		private GameObject door;
 
 		private ProceduralGrid wallGrid;
@@ -26,14 +21,12 @@ namespace Bearshirt
 		private IntGrid edgeGrid;
 		private GridMesh edgeMesh;
 
-		private List<Vector3> edgeVertices;
-
 		void Start()
 		{
 			Debug.Log("Bearshirt.Level");
 
-			wallGrid = new ProceduralGrid(16, 9);
-			// wallGrid = new ProceduralGrid(80, 45);
+			// wallGrid = new ProceduralGrid(16, 9);
+			wallGrid = new ProceduralGrid(80, 45);
 			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
@@ -45,8 +38,20 @@ namespace Bearshirt
 
 		void Update()
 		{
-			if (Input.GetMouseButtonUp(0)) ToggleCell(Input.mousePosition);
-			// if (Input.GetMouseButtonUp(1)) GenerateLevel();
+			if (Input.GetMouseButtonUp(0))
+			{
+				Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				ToggleCell(worldPosition);
+			}
+
+			if (Input.GetButtonDown("Jump") && heroController.velocity != Vector2.zero)
+			{
+				float px = hero.transform.position.x + heroController.velocity.normalized.x;
+				float py = hero.transform.position.y + heroController.velocity.normalized.y;
+				Vector3 position = new Vector3(px, py, 0f);
+				ToggleCell(position);
+			}
+
 			if (GlobalState.IsAtDoor)
 			{
 				GenerateLevel();
@@ -54,9 +59,8 @@ namespace Bearshirt
 			}
 		}
 
-		private void ToggleCell(Vector3 screenPosition)
+		private void ToggleCell(Vector3 worldPosition)
 		{
-			Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
 			int x = (int) ((worldPosition.x - wallMesh.left) / wallMesh.size),
 				y = (int) ((worldPosition.y - wallMesh.top) / wallMesh.size);
 
@@ -98,7 +102,11 @@ namespace Bearshirt
 				place = new Vector3(px, py, 0f);
 			});
 
-			if (hero == null) hero = Instantiate(Hero);
+			if (hero == null)
+			{
+				hero = Instantiate(Hero);
+				heroController = hero.GetComponent<HeroController>();
+			}
 			hero.transform.position = place;
 			Camera.main.GetComponent<FollowTargets>().targets.Add(hero.transform);
 		}
@@ -109,6 +117,7 @@ namespace Bearshirt
 			wallGrid.ForEach((int x, int y) => {
 				if (place != Vector3.zero) return;
 
+				// dirty hack to start from the top right and work backwards
 				x = wallGrid.width - 1 - x;
 				y = wallGrid.height - 1 - y;
 

@@ -4,17 +4,12 @@ namespace Bearshirt
 {
 	public class HeroController : MonoBehaviour
 	{
-		[SerializeField]
-		private Transform down;
-
-		[SerializeField]
-		private LayerMask groundMask;
+		[SerializeField] private Transform down;
+		[SerializeField] private LayerMask groundMask;
 
 		private Rigidbody2D body;
-
 		private ContactPoint2D[] contacts;
-
-		private Vector2 velocity;
+		public Vector2 velocity { get; private set; }
 
 		void Start()
 		{
@@ -62,6 +57,7 @@ namespace Bearshirt
 		void OnCollisionEnter2D(Collision2D other) { contacts = other.contacts; }
 		void OnCollisionStay2D(Collision2D other) { contacts = other.contacts; }
 		void OnCollisionExit2D(Collision2D other) { contacts = other.contacts; }
+
 		void OnTriggerEnter2D(Collider2D other)
 		{
 			if (!other.gameObject.CompareTag("Door")) return;
