@@ -4,18 +4,23 @@ namespace Bearshirt
 {
 	public class HeroController : MonoBehaviour
 	{
-		[SerializeField]
-		private Transform down;
+		[SerializeField] private Transform down;
+		[SerializeField] private LayerMask groundMask;
+		[SerializeField] private SpriteRenderer block;
 
 		private Rigidbody2D body;
-
 		private ContactPoint2D[] contacts;
+		public Vector2 velocity { get; private set; }
 
-		private Vector2 velocity;
+		[HideInInspector] public bool hasBlock {
+			get { return block.enabled; }
+			set { block.enabled = value; }
+		}
 
 		void Start()
 		{
 			body = GetComponent<Rigidbody2D>();
+			hasBlock = false;
 		}
 
 		void OnDrawGizmos()
@@ -29,7 +34,7 @@ namespace Bearshirt
 			}
 
 			Gizmos.color = Color.red;
-			Gizmos.DrawCube(Vector3.zero + down.position, Vector2.one / 5);
+			Gizmos.DrawCube(Vector3.zero + down.position, Vector2.one / 10);
 		}
 
 		void Update()
@@ -52,8 +57,6 @@ namespace Bearshirt
 				body.mass * ((ty - cy) / Time.deltaTime) :
 				0f;
 
-			Debug.Log(IsOnGround());
-
 			Vector2 force = new Vector2(fx, fy);
 			body.AddForce(force);
 		}
@@ -62,12 +65,21 @@ namespace Bearshirt
 		void OnCollisionStay2D(Collision2D other) { contacts = other.contacts; }
 		void OnCollisionExit2D(Collision2D other) { contacts = other.contacts; }
 
+		void OnTriggerEnter2D(Collider2D other)
+		{
+			if (!other.gameObject.CompareTag("Door")) return;
+			GlobalState.IsAtDoor = true;
+		}
+		void OnTriggerStay2D(Collider2D other)
+		{
+			if (!other.gameObject.CompareTag("Door")) return;
+			GlobalState.IsAtDoor = true;
+		}
+
 		private bool IsOnGround()
 		{
-			// int groundMask = LayerMask.NameToLayer("Ground");
-			// int heroMask = LayerMask.NameToLayer("Hero");
-			Collider2D hit = Physics2D.OverlapCircle(down.position, 0.2f);
-			Debug.Log((hit != null) + ": " + down.position);
+			float radius = transform.localScale.y;
+			Collider2D hit = Physics2D.OverlapCircle(down.position, radius / 8, groundMask);
 			return hit != null;
 		}
 	}
