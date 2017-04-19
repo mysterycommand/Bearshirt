@@ -5,19 +5,29 @@ namespace Bearshirt
 {
 	public class BearshirtLoop : MonoBehaviour
 	{
-		private MeshFilter filter;
+		[SerializeField]
+		private MeshFilter walls;
 
-		private BearshirtMap map;
-		private BearshirtMesh mesh;
+		[SerializeField]
+		private MeshFilter edges;
+
+		private ProceduralGrid wallGrid;
+		private GridMesh wallMesh;
+		private MeshOutlines wallOutlines;
+
+		private IntGrid edgeGrid;
+		private GridMesh edgeMesh;
+
+		private List<Vector3> edgeVertices;
 
 		void Start()
 		{
 			Debug.Log("BearshirtLoop");
 
-			filter = GetComponent<MeshFilter>();
+			wallGrid = new ProceduralGrid(80, 45);
+			wallMesh = new GridMesh(wallGrid, 1f);
+			wallOutlines = new MeshOutlines(wallMesh);
 
-			map = new BearshirtMap(16, 9);
-			mesh = new BearshirtMesh(map, 1f);
 			GenerateLevel();
 		}
 
@@ -31,8 +41,17 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
-			filter.mesh = mesh.Generate();
-			GenerateColliders();
+			wallGrid.Generate();
+			walls.mesh = wallMesh.Generate();
+
+			edgeGrid = new IntGrid(wallGrid.width, wallGrid.height);
+			wallGrid.ForEach((int x, int y) => {
+				edgeGrid[x, y] = wallGrid.IsEdge(x, y) ? 1 : 0;
+			});
+			edgeMesh = new GridMesh(edgeGrid, wallMesh.size);
+			edges.mesh = edgeMesh.Generate();
+
+			AddColliders();
 		}
 
 		private void RemoveColliders()
@@ -44,57 +63,15 @@ namespace Bearshirt
 			}
 		}
 
-		private void GenerateColliders()
+		private void AddColliders()
 		{
 			RemoveColliders();
-			List<Vector3> outline = new List<Vector3>();
 
-			// top
-			map.ForRange(0, map.width, map.height - 1, map.height, (int x, int y) => {
-				float t = mesh.top + (y + 1) * mesh.size,
-					l = mesh.left + x * mesh.size;
-
-				string lt = l + "," + t;
-				outline.Add(mesh.verts[mesh.indices[lt]]);
+			List<List<Vector2>> outlines = wallOutlines.Generate();
+			outlines.ForEach((List<Vector2> outline) => {
+				EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
+				collider.points = outline.ToArray();
 			});
-
-			// right
-			int count = outline.Count;
-			map.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
-				float t = mesh.top + (y + 1) * mesh.size,
-					r = mesh.left + (x + 1) * mesh.size;
-
-				string rt = r + "," + t;
-				outline.Insert(count, mesh.verts[mesh.indices[rt]]);
-			});
-
-			// bottom
-			count = outline.Count;
-			map.ForRange(0, map.width, 0, 1, (int x, int y) => {
-				float r = mesh.left + (x + 1) * mesh.size,
-					b = mesh.top + y * mesh.size;
-
-				string rb = r + "," + b;
-				outline.Insert(count, mesh.verts[mesh.indices[rb]]);
-			});
-
-			// left
-			map.ForRange(0, 1, 0, map.height, (int x, int y) => {
-				float b = mesh.top + y * mesh.size,
-					l = mesh.left + x * mesh.size;
-
-				string lb = l + "," + b;
-				outline.Add(mesh.verts[mesh.indices[lb]]);
-			});
-
-			// close
-			outline.Add(outline[0]);
-
-			EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
-			List<Vector2> points = outline.ConvertAll<Vector2>((Vector3 vert) => {
-				return new Vector2(vert.x, vert.y);
-			});
-			collider.points = points.ToArray();
 		}
 	}
 }
