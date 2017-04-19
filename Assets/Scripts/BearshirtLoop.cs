@@ -24,8 +24,7 @@ namespace Bearshirt
 		{
 			Debug.Log("BearshirtLoop");
 
-			// wallMap = new ProceduralGrid(80, 45);
-			wallMap = new ProceduralGrid(16, 9);
+			wallMap = new ProceduralGrid(80, 45);
 			wallMesh = new GridMesh(wallMap, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
@@ -37,17 +36,6 @@ namespace Bearshirt
 			if (Input.GetMouseButtonUp(0))
 			{
 				GenerateLevel();
-			}
-		}
-
-		void OnDrawGizmos()
-		{
-			if (edgeVertices == null) return;
-			Debug.Log("OnDrawGizmos: " + edgeVertices.Count);
-			foreach (Vector3 vertex in edgeVertices)
-			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawCube(vertex, Vector3.one / 4);
 			}
 		}
 
@@ -63,9 +51,6 @@ namespace Bearshirt
 			edgeMesh = new GridMesh(edgeMap, wallMesh.size);
 			edges.mesh = edgeMesh.Generate();
 
-			// edgeVertices = wallMesh.vertices.FindAll(new Predicate<Vector3>((Vector3 vertex) => {
-			// 	return wallMesh.vertexTriangles[vertex].Count < 6;
-			// }));
 			AddColliders();
 		}
 
