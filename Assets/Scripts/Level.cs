@@ -87,9 +87,6 @@ namespace Bearshirt
 			{
 				Destroy(edgeCollider);
 			}
-
-			MeshCollider meshCollider = GetComponent<MeshCollider>();
-			Destroy(meshCollider);
 		}
 
 		private void AddColliders()
@@ -101,9 +98,6 @@ namespace Bearshirt
 				EdgeCollider2D edgeCollider = gameObject.AddComponent<EdgeCollider2D>();
 				edgeCollider.points = outline.ToArray();
 			});
-
-			MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
-			meshCollider.sharedMesh = walls.mesh;
 		}
 	}
 }
