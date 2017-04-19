@@ -2,7 +2,8 @@
 
 namespace Bearshirt
 {
-	public class IntGrid {
+	public class IntGrid
+	{
 
 		public int width { get; private set; }
 		public int height { get; private set; }

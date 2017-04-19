@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bearshirt
@@ -12,8 +11,12 @@ namespace Bearshirt
 		[SerializeField]
 		private MeshFilter edges;
 
-		private BearshirtMap map;
-		private BearshirtMesh mesh;
+		private ProceduralGrid wallMap;
+		private GridMesh wallMesh;
+		private MeshOutlines wallOutlines;
+
+		private IntGrid edgeMap;
+		private GridMesh edgeMesh;
 
 		private List<Vector3> edgeVertices;
 
@@ -21,9 +24,10 @@ namespace Bearshirt
 		{
 			Debug.Log("BearshirtLoop");
 
-			// map = new BearshirtMap(80, 45);
-			map = new BearshirtMap(16, 9);
-			mesh = new BearshirtMesh(map, 1f);
+			// wallMap = new ProceduralGrid(80, 45);
+			wallMap = new ProceduralGrid(16, 9);
+			wallMesh = new GridMesh(wallMap, 1f);
+			wallOutlines = new MeshOutlines(wallMesh);
 
 			GenerateLevel();
 		}
@@ -49,27 +53,20 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
-			map.Generate();
-			walls.mesh = mesh.Generate();
+			wallMap.Generate();
+			walls.mesh = wallMesh.Generate();
 
-			IntGrid edgeMap = new IntGrid(map.width, map.height);
-			map.ForEach((int x, int y) => {
-				edgeMap[x, y] = map.IsEdge(x, y) ? 1 : 0;
+			edgeMap = new IntGrid(wallMap.width, wallMap.height);
+			wallMap.ForEach((int x, int y) => {
+				edgeMap[x, y] = wallMap.IsEdge(x, y) ? 1 : 0;
 			});
-			BearshirtMesh edgeMesh = new BearshirtMesh(edgeMap, 1f);
+			edgeMesh = new GridMesh(edgeMap, wallMesh.size);
 			edges.mesh = edgeMesh.Generate();
 
-			edgeVertices = mesh.vertices.FindAll(new Predicate<Vector3>((Vector3 vertex) => {
-				return mesh.vertexTriangles[vertex].Count < 6;
-			}));
-
-			string verts = "";
-			edgeVertices.ForEach((Vector3 vertex) => {
-				verts += vertex.ToString() + "\n";
-			});
-			Debug.Log(verts);
-
-			// GenerateColliders();
+			// edgeVertices = wallMesh.vertices.FindAll(new Predicate<Vector3>((Vector3 vertex) => {
+			// 	return wallMesh.vertexTriangles[vertex].Count < 6;
+			// }));
+			AddColliders();
 		}
 
 		private void RemoveColliders()
@@ -81,57 +78,17 @@ namespace Bearshirt
 			}
 		}
 
-		// private void GenerateColliders()
-		// {
-		// 	RemoveColliders();
-		// 	List<Vector3> outline = new List<Vector3>();
+		private void AddColliders()
+		{
+			RemoveColliders();
 
-		// 	// top
-		// 	map.ForRange(0, map.width, map.height - 1, map.height, (int x, int y) => {
-		// 		float t = mesh.top + (y + 1) * mesh.size,
-		// 			l = mesh.left + x * mesh.size;
-
-		// 		string lt = l + "," + t;
-		// 		outline.Add(mesh.vertices[mesh.vertexIndices[lt]]);
-		// 	});
-
-		// 	// right
-		// 	int count = outline.Count;
-		// 	map.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
-		// 		float t = mesh.top + (y + 1) * mesh.size,
-		// 			r = mesh.left + (x + 1) * mesh.size;
-
-		// 		string rt = r + "," + t;
-		// 		outline.Insert(count, mesh.vertices[mesh.vertexIndices[rt]]);
-		// 	});
-
-		// 	// bottom
-		// 	count = outline.Count;
-		// 	map.ForRange(0, map.width, 0, 1, (int x, int y) => {
-		// 		float r = mesh.left + (x + 1) * mesh.size,
-		// 			b = mesh.top + y * mesh.size;
-
-		// 		string rb = r + "," + b;
-		// 		outline.Insert(count, mesh.vertices[mesh.vertexIndices[rb]]);
-		// 	});
-
-		// 	// left
-		// 	map.ForRange(0, 1, 0, map.height, (int x, int y) => {
-		// 		float b = mesh.top + y * mesh.size,
-		// 			l = mesh.left + x * mesh.size;
-
-		// 		string lb = l + "," + b;
-		// 		outline.Add(mesh.vertices[mesh.vertexIndices[lb]]);
-		// 	});
-
-		// 	// close
-		// 	outline.Add(outline[0]);
-
-		// 	EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
-		// 	List<Vector2> points = outline.ConvertAll<Vector2>((Vector3 vert) => {
-		// 		return new Vector2(vert.x, vert.y);
-		// 	});
-		// 	collider.points = points.ToArray();
-		// }
+			List<List<Vector2>> outlines = wallOutlines.Generate();
+			// outlines.ForEach((List<Vector2> outline) => {
+			// 	EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
+			// 	collider.points = outline.ToArray();
+			// });
+			EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
+			collider.points = outlines[0].ToArray();
+		}
 	}
 }

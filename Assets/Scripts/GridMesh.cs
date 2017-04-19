@@ -3,36 +3,29 @@ using UnityEngine;
 
 namespace Bearshirt
 {
-	public class BearshirtMesh
+	public class GridMesh
 	{
 		public List<Vector3> vertices { get; private set; }
 		public List<int> triangles { get; private set; }
+
 		public Dictionary<Vector3, int> vertexIndices { get; private set; }
 		public Dictionary<Vector3, List<Triangle>> vertexTriangles { get; private set; }
 
 		public float top { get; private set; }
-		public float right { get { return left + (map.width * size); } }
-		public float bottom { get { return top + (map.height * size); } }
+		public float right { get { return left + (grid.width * size); } }
+		public float bottom { get { return top + (grid.height * size); } }
 		public float left { get; private set; }
 
-		public IntGrid map { get; private set; }
+		public IntGrid grid { get; private set; }
 		public float size { get; private set; }
 
-		public BearshirtMesh(IntGrid _map, float _size)
+		public GridMesh(IntGrid _grid, float _size)
 		{
-			map = _map;
+			grid = _grid;
 			size = _size;
 
-			top = -(map.height * size) / 2;
-			left = -(map.width * size) / 2;
-		}
-
-		public bool IsEdge(Vector3 vertex)
-		{
-			return vertex.y == top ||
-				vertex.x == right ||
-				vertex.y == bottom ||
-				vertex.x == left;
+			top = -(grid.height * size) / 2;
+			left = -(grid.width * size) / 2;
 		}
 
 		public Mesh Generate()
@@ -45,8 +38,8 @@ namespace Bearshirt
 			vertexIndices = new Dictionary<Vector3, int>();
 			vertexTriangles = new Dictionary<Vector3, List<Triangle>>();
 
-			map.ForEach((int x, int y) => {
-				if (map[x, y] != 1f) return;
+			grid.ForEach((int x, int y) => {
+				if (grid[x, y] != 1f) return;
 
 				float t = top + (y + 1) * size,
 					r = left + (x + 1) * size,

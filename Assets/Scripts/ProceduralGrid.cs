@@ -2,12 +2,12 @@
 
 namespace Bearshirt
 {
-	public class BearshirtMap : IntGrid
+	public class ProceduralGrid : IntGrid
 	{
 		private int seed;
 		private System.Random rando;
 
-		public BearshirtMap(int w, int h) : base(w, h)
+		public ProceduralGrid(int w, int h) : base(w, h)
 		{
 			Debug.Log("BearshirtMap: " + seed);
 			Generate();
