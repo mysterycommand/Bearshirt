@@ -38,8 +38,8 @@ namespace Bearshirt
 
 		void OnDrawGizmos()
 		{
+			if (edgeVertices == null) return;
 			Debug.Log("OnDrawGizmos: " + edgeVertices.Count);
-			if (edgeVertices.Count == 0) return;
 			foreach (Vector3 vertex in edgeVertices)
 			{
 				Gizmos.color = Color.yellow;
@@ -52,30 +52,22 @@ namespace Bearshirt
 			map.Generate();
 			walls.mesh = mesh.Generate();
 
-			IntMap edgeMap = new IntMap(map.width, map.height);
+			IntGrid edgeMap = new IntGrid(map.width, map.height);
 			map.ForEach((int x, int y) => {
-				if (map.IsEdge(x, y))
-				{
-					edgeMap[x, y] = 1;
-				}
+				edgeMap[x, y] = map.IsEdge(x, y) ? 1 : 0;
 			});
 			BearshirtMesh edgeMesh = new BearshirtMesh(edgeMap, 1f);
 			edges.mesh = edgeMesh.Generate();
 
-			// foreach (Vector3 vertex in mesh.vertices)
-			// {
-			// 	// string key = vertex.x + "," + vertex.y;
-			// 	// Debug.Log(mesh.indices[key]);
-
-			// 	int x = (int) ((vertex.x - mesh.left) / mesh.size);
-			// 	int y = (int) ((vertex.y - mesh.top) / mesh.size);
-			// 	Debug.Log(x + ", " + y);
-			// }
-
 			edgeVertices = mesh.vertices.FindAll(new Predicate<Vector3>((Vector3 vertex) => {
-				string key = vertex.x + "," + vertex.y;
-				return mesh.triangleCount[key] < 6;
+				return mesh.vertexTriangles[vertex].Count < 6;
 			}));
+
+			string verts = "";
+			edgeVertices.ForEach((Vector3 vertex) => {
+				verts += vertex.ToString() + "\n";
+			});
+			Debug.Log(verts);
 
 			// GenerateColliders();
 		}
@@ -89,57 +81,57 @@ namespace Bearshirt
 			}
 		}
 
-		private void GenerateColliders()
-		{
-			RemoveColliders();
-			List<Vector3> outline = new List<Vector3>();
+		// private void GenerateColliders()
+		// {
+		// 	RemoveColliders();
+		// 	List<Vector3> outline = new List<Vector3>();
 
-			// top
-			map.ForRange(0, map.width, map.height - 1, map.height, (int x, int y) => {
-				float t = mesh.top + (y + 1) * mesh.size,
-					l = mesh.left + x * mesh.size;
+		// 	// top
+		// 	map.ForRange(0, map.width, map.height - 1, map.height, (int x, int y) => {
+		// 		float t = mesh.top + (y + 1) * mesh.size,
+		// 			l = mesh.left + x * mesh.size;
 
-				string lt = l + "," + t;
-				outline.Add(mesh.vertices[mesh.indices[lt]]);
-			});
+		// 		string lt = l + "," + t;
+		// 		outline.Add(mesh.vertices[mesh.vertexIndices[lt]]);
+		// 	});
 
-			// right
-			int count = outline.Count;
-			map.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
-				float t = mesh.top + (y + 1) * mesh.size,
-					r = mesh.left + (x + 1) * mesh.size;
+		// 	// right
+		// 	int count = outline.Count;
+		// 	map.ForRange(map.width - 1, map.width, 0, map.height, (int x, int y) => {
+		// 		float t = mesh.top + (y + 1) * mesh.size,
+		// 			r = mesh.left + (x + 1) * mesh.size;
 
-				string rt = r + "," + t;
-				outline.Insert(count, mesh.vertices[mesh.indices[rt]]);
-			});
+		// 		string rt = r + "," + t;
+		// 		outline.Insert(count, mesh.vertices[mesh.vertexIndices[rt]]);
+		// 	});
 
-			// bottom
-			count = outline.Count;
-			map.ForRange(0, map.width, 0, 1, (int x, int y) => {
-				float r = mesh.left + (x + 1) * mesh.size,
-					b = mesh.top + y * mesh.size;
+		// 	// bottom
+		// 	count = outline.Count;
+		// 	map.ForRange(0, map.width, 0, 1, (int x, int y) => {
+		// 		float r = mesh.left + (x + 1) * mesh.size,
+		// 			b = mesh.top + y * mesh.size;
 
-				string rb = r + "," + b;
-				outline.Insert(count, mesh.vertices[mesh.indices[rb]]);
-			});
+		// 		string rb = r + "," + b;
+		// 		outline.Insert(count, mesh.vertices[mesh.vertexIndices[rb]]);
+		// 	});
 
-			// left
-			map.ForRange(0, 1, 0, map.height, (int x, int y) => {
-				float b = mesh.top + y * mesh.size,
-					l = mesh.left + x * mesh.size;
+		// 	// left
+		// 	map.ForRange(0, 1, 0, map.height, (int x, int y) => {
+		// 		float b = mesh.top + y * mesh.size,
+		// 			l = mesh.left + x * mesh.size;
 
-				string lb = l + "," + b;
-				outline.Add(mesh.vertices[mesh.indices[lb]]);
-			});
+		// 		string lb = l + "," + b;
+		// 		outline.Add(mesh.vertices[mesh.vertexIndices[lb]]);
+		// 	});
 
-			// close
-			outline.Add(outline[0]);
+		// 	// close
+		// 	outline.Add(outline[0]);
 
-			EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
-			List<Vector2> points = outline.ConvertAll<Vector2>((Vector3 vert) => {
-				return new Vector2(vert.x, vert.y);
-			});
-			collider.points = points.ToArray();
-		}
+		// 	EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
+		// 	List<Vector2> points = outline.ConvertAll<Vector2>((Vector3 vert) => {
+		// 		return new Vector2(vert.x, vert.y);
+		// 	});
+		// 	collider.points = points.ToArray();
+		// }
 	}
 }

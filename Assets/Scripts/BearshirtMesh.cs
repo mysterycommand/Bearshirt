@@ -6,33 +6,44 @@ namespace Bearshirt
 	public class BearshirtMesh
 	{
 		public List<Vector3> vertices { get; private set; }
-		public Dictionary<string, int> indices { get; private set; }
 		public List<int> triangles { get; private set; }
-		public Dictionary<string, int> triangleCount { get; private set; }
+		public Dictionary<Vector3, int> vertexIndices { get; private set; }
+		public Dictionary<Vector3, List<Triangle>> vertexTriangles { get; private set; }
 
 		public float top { get; private set; }
+		public float right { get { return left + (map.width * size); } }
+		public float bottom { get { return top + (map.height * size); } }
 		public float left { get; private set; }
 
-		public IntMap map { get; private set; }
+		public IntGrid map { get; private set; }
 		public float size { get; private set; }
 
-		public BearshirtMesh(IntMap _map, float _size)
+		public BearshirtMesh(IntGrid _map, float _size)
 		{
 			map = _map;
 			size = _size;
+
+			top = -(map.height * size) / 2;
+			left = -(map.width * size) / 2;
+		}
+
+		public bool IsEdge(Vector3 vertex)
+		{
+			return vertex.y == top ||
+				vertex.x == right ||
+				vertex.y == bottom ||
+				vertex.x == left;
 		}
 
 		public Mesh Generate()
 		{
 			Mesh mesh = new Mesh();
 
-			top = -(map.height * size) / 2;
-			left = -(map.width * size) / 2;
-
 			vertices = new List<Vector3>();
-			indices = new Dictionary<string, int>();
 			triangles = new List<int>();
-			triangleCount = new Dictionary<string, int>();
+
+			vertexIndices = new Dictionary<Vector3, int>();
+			vertexTriangles = new Dictionary<Vector3, List<Triangle>>();
 
 			map.ForEach((int x, int y) => {
 				if (map[x, y] != 1f) return;
@@ -42,52 +53,18 @@ namespace Bearshirt
 					b = top + y * size,
 					l = left + x * size;
 
-				string lt = l + "," + t,
-					rt = r + "," + t,
-					rb = r + "," + b,
-					lb = l + "," + b;
+				Vector3 lt = new Vector3(l, t, 0f),
+					rt = new Vector3(r, t, 0f),
+					rb = new Vector3(r, b, 0f),
+					lb = new Vector3(l, b, 0f);
 
-				if (!indices.ContainsKey(lt))
-				{
-					indices[lt] = vertices.Count;
-					triangleCount[lt] = 0;
-					vertices.Add(new Vector3(l, t, 0f));
-				}
+				AddVertex(lt);
+				AddVertex(rt);
+				AddVertex(rb);
+				AddVertex(lb);
 
-				if (!indices.ContainsKey(rt))
-				{
-					indices[rt] = vertices.Count;
-					triangleCount[rt] = 0;
-					vertices.Add(new Vector3(r, t, 0f));
-				}
-
-				if (!indices.ContainsKey(rb))
-				{
-					indices[rb] = vertices.Count;
-					triangleCount[rb] = 0;
-					vertices.Add(new Vector3(r, b, 0f));
-				}
-
-				if (!indices.ContainsKey(lb))
-				{
-					indices[lb] = vertices.Count;
-					triangleCount[lb] = 0;
-					vertices.Add(new Vector3(l, b, 0f));
-				}
-
-				triangles.Add(indices[lt]);
-				triangleCount[lt]++;
-				triangles.Add(indices[rt]);
-				triangleCount[rt]++;
-				triangles.Add(indices[rb]);
-				triangleCount[rb]++;
-
-				triangles.Add(indices[lt]);
-				triangleCount[lt]++;
-				triangles.Add(indices[rb]);
-				triangleCount[rb]++;
-				triangles.Add(indices[lb]);
-				triangleCount[lb]++;
+				AddTriangle(lt, rt, rb);
+				AddTriangle(lt, rb, lb);
 			});
 
 			mesh.vertices = vertices.ToArray();
@@ -95,6 +72,30 @@ namespace Bearshirt
 			mesh.RecalculateNormals();
 
 			return mesh;
+		}
+
+		private void AddVertex(Vector3 vertex)
+		{
+			if (vertexIndices.ContainsKey(vertex)) return;
+
+			vertexTriangles[vertex] = new List<Triangle>();
+			vertexIndices[vertex] = vertices.Count;
+			vertices.Add(vertex);
+		}
+
+		private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
+		{
+			int ia = vertexIndices[a],
+				ib = vertexIndices[b],
+				ic = vertexIndices[c];
+			triangles.Add(ia);
+			triangles.Add(ib);
+			triangles.Add(ic);
+
+			Triangle tri = new Triangle(ia, ib, ic);
+			vertexTriangles[a].Add(tri);
+			vertexTriangles[b].Add(tri);
+			vertexTriangles[c].Add(tri);
 		}
 	}
 }

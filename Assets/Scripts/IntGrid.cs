@@ -2,14 +2,14 @@
 
 namespace Bearshirt
 {
-	public class IntMap {
+	public class IntGrid {
 
 		public int width { get; private set; }
 		public int height { get; private set; }
 
 		private int[,] cells;
 
-		public IntMap(int w, int h)
+		public IntGrid(int w, int h)
 		{
 			width = w;
 			height = h;

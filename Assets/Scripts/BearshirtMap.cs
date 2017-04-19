@@ -2,7 +2,7 @@
 
 namespace Bearshirt
 {
-	public class BearshirtMap : IntMap
+	public class BearshirtMap : IntGrid
 	{
 		private int seed;
 		private System.Random rando;
