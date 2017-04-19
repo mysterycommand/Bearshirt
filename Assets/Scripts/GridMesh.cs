@@ -39,7 +39,7 @@ namespace Bearshirt
 			vertexTriangles = new Dictionary<Vector3, List<Triangle>>();
 
 			grid.ForEach((int x, int y) => {
-				if (grid[x, y] != 1f) return;
+				if (grid[x, y] != 1) return;
 
 				float t = top + (y + 1) * size,
 					r = left + (x + 1) * size,

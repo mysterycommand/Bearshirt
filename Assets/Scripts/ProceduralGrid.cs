@@ -20,6 +20,35 @@ namespace Bearshirt
 
 			Randomize(60);
 			Smooth(4);
+
+			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
+				bool isEmptyUp = IsEmpty(x, y + 1);
+				bool isEmptyRt = IsEmpty(x + 1, y);
+				bool isEmptyDn = IsEmpty(x, y - 1);
+				bool isEmptyLf = IsEmpty(x - 1, y);
+
+				bool isOrphan = isEmptyUp && isEmptyRt && isEmptyDn && isEmptyLf;
+				bool isCorner = (
+					(isEmptyUp && isEmptyRt) ||
+					(isEmptyRt && isEmptyDn) ||
+					(isEmptyDn && isEmptyLf) ||
+					(isEmptyLf && isEmptyUp)
+				);
+				bool isChecky = (
+					(isOrphan && (
+						IsSolid(x + 1, y + 1) ||
+						IsSolid(x + 1, y - 1) ||
+						IsSolid(x - 1, y - 1) ||
+						IsSolid(x - 1, y + 1)
+					)) ||
+					((isEmptyUp && isEmptyRt) && IsSolid(x + 1, y + 1)) ||
+					((isEmptyRt && isEmptyDn) && IsSolid(x + 1, y - 1)) ||
+					((isEmptyDn && isEmptyLf) && IsSolid(x - 1, y - 1)) ||
+					((isEmptyLf && isEmptyUp) && IsSolid(x - 1, y + 1))
+				);
+
+				if (isChecky) this[x, y] = 0;
+			});
 		}
 
 		private int GetSeed(int? seed)
