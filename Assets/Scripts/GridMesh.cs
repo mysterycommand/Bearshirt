@@ -57,7 +57,7 @@ namespace Bearshirt
 				AddVertex(lb);
 
 				AddTriangle(lt, rt, rb);
-				AddTriangle(lt, rb, lb);
+				AddTriangle(rb, lb, lt);
 			});
 
 			mesh.vertices = vertices.ToArray();

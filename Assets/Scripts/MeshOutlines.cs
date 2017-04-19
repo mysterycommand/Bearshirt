@@ -12,6 +12,7 @@ namespace Bearshirt
 
 		private HashSet<Vector3> edgeVertices;
 		private HashSet<Vector3> checkedVertices;
+		private List<Vector3> uncheckVertices = new List<Vector3>();
 
 		public MeshOutlines(GridMesh _mesh)
 		{
@@ -50,6 +51,13 @@ namespace Bearshirt
 			edge.Add(vertex);
 			FollowEdge(edge, vertex);
 			edge.Add(vertex);
+
+			// while (uncheckVertices.Count > 0) {
+			// 	Vector3 v = uncheckVertices[0];
+			// 	if (checkedVertices.Contains(v)) checkedVertices.Remove(v);
+			// 	uncheckVertices.Remove(v);
+			// }
+
 			return edge;
 		}
 
@@ -64,7 +72,11 @@ namespace Bearshirt
 					vc = mesh.vertices[t.c];
 
 				if (!checkedVertices.Contains(va)) vertices.Add(va);
-				if (!checkedVertices.Contains(vb)) vertices.Add(vb);
+				if (!checkedVertices.Contains(vb))
+				{
+					vertices.Add(vb);
+					// uncheckVertices.Add(vb);
+				}
 				if (!checkedVertices.Contains(vc)) vertices.Add(vc);
 			});
 
