@@ -82,11 +82,14 @@ namespace Bearshirt
 
 		private void RemoveColliders()
 		{
-			EdgeCollider2D[] colliders = GetComponents<EdgeCollider2D>();
-			foreach (EdgeCollider2D collider in colliders)
+			EdgeCollider2D[] edgeColliders = GetComponents<EdgeCollider2D>();
+			foreach (EdgeCollider2D edgeCollider in edgeColliders)
 			{
-				Destroy(collider);
+				Destroy(edgeCollider);
 			}
+
+			MeshCollider meshCollider = GetComponent<MeshCollider>();
+			Destroy(meshCollider);
 		}
 
 		private void AddColliders()
@@ -95,9 +98,12 @@ namespace Bearshirt
 
 			List<List<Vector2>> outlines = wallOutlines.Generate();
 			outlines.ForEach((List<Vector2> outline) => {
-				EdgeCollider2D collider = gameObject.AddComponent<EdgeCollider2D>();
-				collider.points = outline.ToArray();
+				EdgeCollider2D edgeCollider = gameObject.AddComponent<EdgeCollider2D>();
+				edgeCollider.points = outline.ToArray();
 			});
+
+			MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
+			meshCollider.sharedMesh = walls.mesh;
 		}
 	}
 }

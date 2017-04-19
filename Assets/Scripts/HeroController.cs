@@ -7,6 +7,9 @@ namespace Bearshirt
 		[SerializeField]
 		private Transform down;
 
+		[SerializeField]
+		private LayerMask groundMask;
+
 		private Rigidbody2D body;
 
 		private ContactPoint2D[] contacts;
@@ -29,7 +32,7 @@ namespace Bearshirt
 			}
 
 			Gizmos.color = Color.red;
-			Gizmos.DrawCube(Vector3.zero + down.position, Vector2.one / 5);
+			Gizmos.DrawCube(Vector3.zero + down.position, Vector2.one / 10);
 		}
 
 		void Update()
@@ -64,10 +67,9 @@ namespace Bearshirt
 
 		private bool IsOnGround()
 		{
-			// int groundMask = LayerMask.NameToLayer("Ground");
-			// int heroMask = LayerMask.NameToLayer("Hero");
-			Collider2D hit = Physics2D.OverlapCircle(down.position, 0.2f);
-			Debug.Log((hit != null) + ": " + down.position);
+			float radius = transform.localScale.y;
+			Collider2D hit = Physics2D.OverlapCircle(down.position, radius / 8, groundMask);
+			Debug.Log((hit != null) + ": " + down.position + ", " + radius);
 			return hit != null;
 		}
 	}
