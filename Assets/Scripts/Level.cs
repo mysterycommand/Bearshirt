@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Bearshirt
 {
-	public class BearshirtLoop : MonoBehaviour
+	public class Level : MonoBehaviour
 	{
 		[SerializeField]
 		private MeshFilter walls;
@@ -24,34 +24,60 @@ namespace Bearshirt
 		{
 			Debug.Log("BearshirtLoop");
 
+			// wallGrid = new ProceduralGrid(16, 9);
 			wallGrid = new ProceduralGrid(80, 45);
 			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
+
+			edgeGrid = new IntGrid(wallGrid.width, wallGrid.height);
+			edgeMesh = new GridMesh(edgeGrid, wallMesh.size);
 
 			GenerateLevel();
 		}
 
 		void Update()
 		{
-			if (Input.GetMouseButtonUp(0))
-			{
-				GenerateLevel();
-			}
+			if (Input.GetMouseButtonUp(0)) ToggleCell(Input.mousePosition);
+			if (Input.GetMouseButtonUp(1)) GenerateLevel();
+		}
+
+		private void ToggleCell(Vector3 screenPosition)
+		{
+			Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
+			int x = (int) ((worldPosition.x - wallMesh.left) / wallMesh.size),
+				y = (int) ((worldPosition.y - wallMesh.top) / wallMesh.size);
+
+			if (wallGrid.IsBorder(x, y)) return;
+
+			wallGrid[x, y] = wallGrid.IsEmpty(x, y) ? 1 : 0;
+			wallGrid.NoKissing();
+			UpdateLevel();
 		}
 
 		private void GenerateLevel()
 		{
 			wallGrid.Generate();
-			walls.mesh = wallMesh.Generate();
+			UpdateLevel();
+		}
 
-			edgeGrid = new IntGrid(wallGrid.width, wallGrid.height);
+		private void UpdateLevel()
+		{
+			UpdateGrids();
+			UpdateMeshes();
+			AddColliders();
+		}
+
+		private void UpdateGrids()
+		{
 			wallGrid.ForEach((int x, int y) => {
 				edgeGrid[x, y] = wallGrid.IsEdge(x, y) ? 1 : 0;
 			});
-			edgeMesh = new GridMesh(edgeGrid, wallMesh.size);
-			edges.mesh = edgeMesh.Generate();
+		}
 
-			AddColliders();
+		private void UpdateMeshes()
+		{
+			walls.mesh = wallMesh.Generate();
+			edges.mesh = edgeMesh.Generate();
 		}
 
 		private void RemoveColliders()

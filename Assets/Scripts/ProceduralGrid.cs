@@ -53,7 +53,7 @@ namespace Bearshirt
 			});
 		}
 
-		private void NoKissing()
+		public void NoKissing()
 		{
 			ForRange(1, width - 1, 1, height - 1, (int x, int y) => {
 				int up = y + 1,
