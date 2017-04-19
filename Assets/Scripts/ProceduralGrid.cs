@@ -15,7 +15,7 @@ namespace Bearshirt
 
 		public void Generate()
 		{
-			seed = GetSeed(0);
+			seed = GetSeed(null);
 			rando = new System.Random(seed);
 
 			Randomize(60);
