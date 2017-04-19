@@ -10,7 +10,12 @@ namespace Bearshirt
 
 		private int[,] cells;
 
-		public IntGrid(int w, int h)
+		public IntGrid(int width = 9, int height = 9)
+		{
+			SetSize(width, height);
+		}
+
+		public void SetSize(int w, int h)
 		{
 			width = w;
 			height = h;

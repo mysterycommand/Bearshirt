@@ -25,8 +25,8 @@ namespace Bearshirt
 		{
 			Debug.Log("Bearshirt.Level");
 
-			// wallGrid = new ProceduralGrid(16, 9);
-			wallGrid = new ProceduralGrid(80, 45);
+			wallGrid = new ProceduralGrid();
+			// wallGrid = new ProceduralGrid(80, 45);
 			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
@@ -83,7 +83,9 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
-			Debug.Log("GenerateLevel");
+			int width = 16 * Random.Range(1, 5);
+			int height = 9 * Random.Range(1, 5);
+			wallGrid.SetSize(width, height);
 			wallGrid.Generate();
 			UpdateLevel();
 			PlaceHero();
@@ -146,6 +148,7 @@ namespace Bearshirt
 
 		private void UpdateEdgeGrid()
 		{
+			edgeGrid.SetSize(wallGrid.width, wallGrid.height);
 			wallGrid.ForEach((int x, int y) => {
 				edgeGrid[x, y] = wallGrid.IsEdge(x, y) ? 1 : 0;
 			});

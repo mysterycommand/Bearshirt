@@ -7,7 +7,7 @@ namespace Bearshirt
 		private int seed;
 		private System.Random rando;
 
-		public ProceduralGrid(int w, int h) : base(w, h)
+		public ProceduralGrid(int width = 9, int height = 9) : base(width, height)
 		{
 			Debug.Log("Bearshirt.ProceduralGrid");
 			Generate();
