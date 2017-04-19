@@ -6,14 +6,21 @@ namespace Bearshirt
 	{
 		[SerializeField] private Transform down;
 		[SerializeField] private LayerMask groundMask;
+		[SerializeField] private SpriteRenderer block;
 
 		private Rigidbody2D body;
 		private ContactPoint2D[] contacts;
 		public Vector2 velocity { get; private set; }
 
+		[HideInInspector] public bool hasBlock {
+			get { return block.enabled; }
+			set { block.enabled = value; }
+		}
+
 		void Start()
 		{
 			body = GetComponent<Rigidbody2D>();
+			hasBlock = false;
 		}
 
 		void OnDrawGizmos()

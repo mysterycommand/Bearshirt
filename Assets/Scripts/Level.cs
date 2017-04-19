@@ -60,7 +60,23 @@ namespace Bearshirt
 
 			if (wallGrid.IsBorder(x, y)) return;
 
-			wallGrid[x, y] = wallGrid.IsEmpty(x, y) ? 1 : 0;
+			if (wallGrid.IsEmpty(x, y))
+			{
+				if (heroController.hasBlock)
+				{
+					heroController.hasBlock = false;
+					wallGrid[x, y] = 1;
+				}
+			}
+			else
+			{
+				if (!heroController.hasBlock)
+				{
+					heroController.hasBlock = true;
+					wallGrid[x, y] = 0;
+				}
+			}
+
 			wallGrid.NoKissing();
 			UpdateLevel();
 		}
