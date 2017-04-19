@@ -62,6 +62,16 @@ namespace Bearshirt
 		void OnCollisionEnter2D(Collision2D other) { contacts = other.contacts; }
 		void OnCollisionStay2D(Collision2D other) { contacts = other.contacts; }
 		void OnCollisionExit2D(Collision2D other) { contacts = other.contacts; }
+		void OnTriggerEnter2D(Collider2D other)
+		{
+			if (!other.gameObject.CompareTag("Door")) return;
+			GlobalState.IsAtDoor = true;
+		}
+		void OnTriggerStay2D(Collider2D other)
+		{
+			if (!other.gameObject.CompareTag("Door")) return;
+			GlobalState.IsAtDoor = true;
+		}
 
 		private bool IsOnGround()
 		{

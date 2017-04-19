@@ -9,7 +9,7 @@ namespace Bearshirt
 
 		public ProceduralGrid(int w, int h) : base(w, h)
 		{
-			Debug.Log("BearshirtMap: " + seed);
+			Debug.Log("Bearshirt.ProceduralGrid");
 			Generate();
 		}
 

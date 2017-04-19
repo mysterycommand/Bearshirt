@@ -46,10 +46,10 @@ namespace Bearshirt
 			return IsSolid(x, y) &&
 			(
 				IsBorder(x, y) ||
-				IsEmpty(x - 1, y) ||
-				IsEmpty(x, y - 1) ||
 				IsEmpty(x + 1, y) ||
-				IsEmpty(x, y + 1)
+				IsEmpty(x, y + 1) ||
+				IsEmpty(x - 1, y) ||
+				IsEmpty(x, y - 1)
 			);
 		}
 

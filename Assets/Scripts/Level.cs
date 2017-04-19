@@ -11,6 +11,14 @@ namespace Bearshirt
 		[SerializeField]
 		private MeshFilter edges;
 
+		[SerializeField]
+		private GameObject Hero;
+		private GameObject hero;
+
+		[SerializeField]
+		private GameObject Door;
+		private GameObject door;
+
 		private ProceduralGrid wallGrid;
 		private GridMesh wallMesh;
 		private MeshOutlines wallOutlines;
@@ -22,10 +30,10 @@ namespace Bearshirt
 
 		void Start()
 		{
-			Debug.Log("BearshirtLoop");
+			Debug.Log("Bearshirt.Level");
 
-			// wallGrid = new ProceduralGrid(16, 9);
-			wallGrid = new ProceduralGrid(80, 45);
+			wallGrid = new ProceduralGrid(16, 9);
+			// wallGrid = new ProceduralGrid(80, 45);
 			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
@@ -38,7 +46,12 @@ namespace Bearshirt
 		void Update()
 		{
 			if (Input.GetMouseButtonUp(0)) ToggleCell(Input.mousePosition);
-			if (Input.GetMouseButtonUp(1)) GenerateLevel();
+			// if (Input.GetMouseButtonUp(1)) GenerateLevel();
+			if (GlobalState.IsAtDoor)
+			{
+				GenerateLevel();
+				GlobalState.IsAtDoor = false;
+			}
 		}
 
 		private void ToggleCell(Vector3 screenPosition)
@@ -56,18 +69,63 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
+			Debug.Log("GenerateLevel");
 			wallGrid.Generate();
 			UpdateLevel();
+			PlaceHero();
+			PlaceDoor();
 		}
 
 		private void UpdateLevel()
 		{
-			UpdateGrids();
+			UpdateEdgeGrid();
 			UpdateMeshes();
 			AddColliders();
 		}
 
-		private void UpdateGrids()
+		private void PlaceHero()
+		{
+			Vector3 place = Vector3.zero;
+			wallGrid.ForEach((int x, int y) => {
+				if (place != Vector3.zero) return;
+
+				int up = (int) Mathf.Min(y + 1, wallGrid.height - 1);
+				bool isPlace = wallGrid.IsEdge(x, y) && wallGrid.IsEmpty(x, up);
+				if (!isPlace) return;
+
+				float px = wallMesh.left + x * wallMesh.size + (wallMesh.size / 2);
+				float py = wallMesh.top + up * wallMesh.size + (wallMesh.size / 2);
+				place = new Vector3(px, py, 0f);
+			});
+
+			if (hero == null) hero = Instantiate(Hero);
+			hero.transform.position = place;
+			Camera.main.GetComponent<FollowTargets>().targets.Add(hero.transform);
+		}
+
+		private void PlaceDoor()
+		{
+			Vector3 place = Vector3.zero;
+			wallGrid.ForEach((int x, int y) => {
+				if (place != Vector3.zero) return;
+
+				x = wallGrid.width - 1 - x;
+				y = wallGrid.height - 1 - y;
+
+				int up = (int) Mathf.Min(y + 1, wallGrid.height - 1);
+				bool isPlace = wallGrid.IsEdge(x, y) && wallGrid.IsEmpty(x, up);
+				if (!isPlace) return;
+
+				float px = wallMesh.left + x * wallMesh.size + (wallMesh.size / 2);
+				float py = wallMesh.top + up * wallMesh.size + (wallMesh.size / 2);
+				place = new Vector3(px, py, 0f);
+			});
+
+			if (door == null) door = Instantiate(Door);
+			door.transform.position = place;
+		}
+
+		private void UpdateEdgeGrid()
 		{
 			wallGrid.ForEach((int x, int y) => {
 				edgeGrid[x, y] = wallGrid.IsEdge(x, y) ? 1 : 0;
