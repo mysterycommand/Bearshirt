@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Bearshirt
 {
-	public class BearshirtLoop : MonoBehaviour
+	public class Level : MonoBehaviour
 	{
 		[SerializeField]
 		private MeshFilter walls;
