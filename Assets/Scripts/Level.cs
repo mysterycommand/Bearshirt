@@ -12,6 +12,7 @@ namespace Bearshirt
 		[SerializeField] private GameObject hero;
 		[SerializeField] private GameObject door;
 		private HeroController heroController;
+		private List<Transform> cameraTargets;
 
 		private ProceduralGrid wallGrid;
 		private GridMesh wallMesh;
@@ -27,11 +28,15 @@ namespace Bearshirt
 		private GridMesh lavaMesh;
 		private MeshOutlines lavaOutlines;
 
+
+		private int lavaDepth = 5;
+
 		void Start()
 		{
 			Debug.Log("Bearshirt.Level");
 
 			heroController = hero.GetComponent<HeroController>();
+			cameraTargets = Camera.main.GetComponent<FollowTargets>().targets;
 
 			wallGrid = new ProceduralGrid();
 			wallMesh = new GridMesh(wallGrid, 1f);
@@ -47,7 +52,7 @@ namespace Bearshirt
 			lavaMesh = new GridMesh(lavaGrid, wallMesh.size);
 			lavaOutlines = new MeshOutlines(lavaMesh);
 
-			GenerateLevel();
+			GenerateStart();
 		}
 
 		void Update()
@@ -108,10 +113,46 @@ namespace Bearshirt
 			UpdateLevel();
 		}
 
+		private void GenerateStart()
+		{
+			lavaDepth = 2;
+			int[,] start = new int[,] {
+				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,},
+				{1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,0,1,0,1,0,1,},
+				{1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,},
+				{1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0,1,0,1,},
+				{1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,0,0,1,},
+				{1,0,1,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,1,0,1,},
+				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,},
+				{1,0,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,0,1,},
+				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
+			};
+
+			int width = start.GetLength(1);
+			int height = start.GetLength(0);
+			wallGrid.SetSize(width, height);
+
+			for (int y = 0; y < height; ++y)
+			{
+				for (int x = 0; x < width; ++x)
+				{
+					wallGrid[x, height - 1 - y] = start[y, x];
+				}
+			}
+
+			cameraTargets.Add(door.transform);
+			UpdateLevel();
+			PlaceHero();
+			PlaceDoor();
+		}
+
 		private void GenerateLevel()
 		{
+			++lavaDepth;
+			if (cameraTargets.Contains(door.transform)) cameraTargets.Remove(door.transform);
 			int width = 16 * Random.Range(1, 5);
-			int height = 9 * Random.Range(1, 5);
+			int height = 9 * Random.Range(1, 5) + lavaDepth;
 			wallGrid.SetSize(width, height);
 			wallGrid.Generate();
 			UpdateLevel();
@@ -187,7 +228,7 @@ namespace Bearshirt
 			});
 
 			lavaGrid.SetSize(wallGrid.width, wallGrid.height);
-			lavaGrid.ForRange(0, lavaGrid.width, 0, 5, (int x, int y) => {
+			lavaGrid.ForRange(0, lavaGrid.width, 0, lavaDepth, (int x, int y) => {
 				lavaGrid[x, y] = wallGrid.IsEmpty(x, y) ? 1 : 0;
 			});
 		}

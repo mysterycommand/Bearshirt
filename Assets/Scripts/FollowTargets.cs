@@ -5,8 +5,7 @@ namespace Bearshirt
 {
 	public class FollowTargets : MonoBehaviour
 	{
-		[SerializeField]
-		private List<Transform> targets = new List<Transform>();
+		public List<Transform> targets = new List<Transform>();
 
 		void FixedUpdate()
 		{
