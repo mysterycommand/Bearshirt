@@ -3,10 +3,10 @@
 	public class GlobalState
 	{
 		private static bool _IsAtDoor = false;
-		public static int Levels { get; private set; } = 0;
+		public static int Levels = 0;
 
 		private static bool _IsInLava = false;
-		public static int Deaths { get; private set; } = 0;
+		public static int Deaths = 0;
 
 		public static bool IsAtDoor
 		{

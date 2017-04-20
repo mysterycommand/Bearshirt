@@ -66,6 +66,13 @@ namespace Bearshirt
 				GenerateLevel();
 			}
 
+			if (GlobalState.Deaths == 3)
+			{
+				GlobalState.Deaths = 0;
+				GlobalState.Levels = 0;
+				GenerateLevel();
+			}
+
 			if (GlobalState.IsInLava)
 			{
 				GlobalState.IsInLava = false;
