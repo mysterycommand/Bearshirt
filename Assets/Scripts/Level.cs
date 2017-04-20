@@ -5,8 +5,10 @@ namespace Bearshirt
 {
 	public class Level : MonoBehaviour
 	{
+		[SerializeField] private MeshFilter bkgds;
 		[SerializeField] private MeshFilter walls;
 		[SerializeField] private MeshFilter edges;
+		[SerializeField] private MeshFilter lavas;
 		[SerializeField] private GameObject Hero;
 		[SerializeField] private GameObject Door;
 
@@ -14,12 +16,18 @@ namespace Bearshirt
 		private HeroController heroController;
 		private GameObject door;
 
+		private IntGrid bkgdGrid;
+		private GridMesh bkgdMesh;
+
 		private ProceduralGrid wallGrid;
 		private GridMesh wallMesh;
 		private MeshOutlines wallOutlines;
 
 		private IntGrid edgeGrid;
 		private GridMesh edgeMesh;
+
+		private IntGrid lavaGrid;
+		private GridMesh lavaMesh;
 
 		void Start()
 		{
@@ -30,8 +38,14 @@ namespace Bearshirt
 			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
+			bkgdGrid = new IntGrid(wallGrid.width, wallGrid.height);
+			bkgdMesh = new GridMesh(bkgdGrid, wallMesh.size);
+
 			edgeGrid = new IntGrid(wallGrid.width, wallGrid.height);
 			edgeMesh = new GridMesh(edgeGrid, wallMesh.size);
+
+			lavaGrid = new IntGrid(wallGrid.width, wallGrid.height);
+			lavaMesh = new GridMesh(lavaGrid, wallMesh.size);
 
 			GenerateLevel();
 		}
@@ -94,7 +108,7 @@ namespace Bearshirt
 
 		private void UpdateLevel()
 		{
-			UpdateEdgeGrid();
+			UpdateGrids();
 			UpdateMeshes();
 			AddColliders();
 		}
@@ -146,18 +160,30 @@ namespace Bearshirt
 			door.transform.position = place;
 		}
 
-		private void UpdateEdgeGrid()
+		private void UpdateGrids()
 		{
+			bkgdGrid.SetSize(wallGrid.width, wallGrid.height);
+			bkgdGrid.ForEach((int x, int y) => {
+				bkgdGrid[x, y] = 1;
+			});
+
 			edgeGrid.SetSize(wallGrid.width, wallGrid.height);
-			wallGrid.ForEach((int x, int y) => {
+			edgeGrid.ForEach((int x, int y) => {
 				edgeGrid[x, y] = wallGrid.IsEdge(x, y) ? 1 : 0;
+			});
+
+			lavaGrid.SetSize(wallGrid.width, wallGrid.height);
+			lavaGrid.ForRange(0, lavaGrid.width, 0, 5, (int x, int y) => {
+				lavaGrid[x, y] = wallGrid.IsEmpty(x, y) ? 1 : 0;
 			});
 		}
 
 		private void UpdateMeshes()
 		{
+			bkgds.mesh = bkgdMesh.Generate();
 			walls.mesh = wallMesh.Generate();
 			edges.mesh = edgeMesh.Generate();
+			lavas.mesh = lavaMesh.Generate();
 		}
 
 		private void RemoveColliders()
