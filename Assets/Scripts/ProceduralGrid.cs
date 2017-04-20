@@ -13,9 +13,9 @@ namespace Bearshirt
 			Generate();
 		}
 
-		public void Generate()
+		public void Generate(bool updateSeed = true)
 		{
-			seed = GetSeed(null);
+			if (updateSeed) seed = GetSeed(null);
 			rando = new System.Random(seed);
 
 			Randomize(60);

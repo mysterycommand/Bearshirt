@@ -9,32 +9,31 @@ namespace Bearshirt
 		[SerializeField] private MeshFilter walls;
 		[SerializeField] private MeshFilter edges;
 		[SerializeField] private MeshFilter lavas;
-		[SerializeField] private GameObject Hero;
-		[SerializeField] private GameObject Door;
-
-		private GameObject hero;
+		[SerializeField] private GameObject hero;
+		[SerializeField] private GameObject door;
 		private HeroController heroController;
-		private GameObject door;
-
-		private IntGrid bkgdGrid;
-		private GridMesh bkgdMesh;
 
 		private ProceduralGrid wallGrid;
 		private GridMesh wallMesh;
 		private MeshOutlines wallOutlines;
+
+		private IntGrid bkgdGrid;
+		private GridMesh bkgdMesh;
 
 		private IntGrid edgeGrid;
 		private GridMesh edgeMesh;
 
 		private IntGrid lavaGrid;
 		private GridMesh lavaMesh;
+		private MeshOutlines lavaOutlines;
 
 		void Start()
 		{
 			Debug.Log("Bearshirt.Level");
 
+			heroController = hero.GetComponent<HeroController>();
+
 			wallGrid = new ProceduralGrid();
-			// wallGrid = new ProceduralGrid(80, 45);
 			wallMesh = new GridMesh(wallGrid, 1f);
 			wallOutlines = new MeshOutlines(wallMesh);
 
@@ -46,6 +45,7 @@ namespace Bearshirt
 
 			lavaGrid = new IntGrid(wallGrid.width, wallGrid.height);
 			lavaMesh = new GridMesh(lavaGrid, wallMesh.size);
+			lavaOutlines = new MeshOutlines(lavaMesh);
 
 			GenerateLevel();
 		}
@@ -62,8 +62,14 @@ namespace Bearshirt
 
 			if (GlobalState.IsAtDoor)
 			{
-				GenerateLevel();
 				GlobalState.IsAtDoor = false;
+				GenerateLevel();
+			}
+
+			if (GlobalState.IsInLava)
+			{
+				GlobalState.IsInLava = false;
+				ResetLevel();
 			}
 		}
 
@@ -106,6 +112,13 @@ namespace Bearshirt
 			PlaceDoor();
 		}
 
+		private void ResetLevel()
+		{
+			wallGrid.Generate(false);
+			UpdateLevel();
+			PlaceHero();
+		}
+
 		private void UpdateLevel()
 		{
 			UpdateGrids();
@@ -120,7 +133,7 @@ namespace Bearshirt
 				if (place != Vector3.zero) return;
 
 				int up = (int) Mathf.Min(y + 1, wallGrid.height - 1);
-				bool isPlace = wallGrid.IsEdge(x, y) && wallGrid.IsEmpty(x, up);
+				bool isPlace = wallGrid.IsEdge(x, y) && wallGrid.IsEmpty(x, up) && lavaGrid.IsEmpty(x, up);
 				if (!isPlace) return;
 
 				float px = wallMesh.left + x * wallMesh.size + (wallMesh.size / 2);
@@ -128,13 +141,8 @@ namespace Bearshirt
 				place = new Vector3(px, py, 0f);
 			});
 
-			if (hero == null)
-			{
-				hero = Instantiate(Hero);
-				heroController = hero.GetComponent<HeroController>();
-			}
+			heroController.hasBlock = false;
 			hero.transform.position = place;
-			Camera.main.GetComponent<FollowTargets>().targets.Add(hero.transform);
 		}
 
 		private void PlaceDoor()
@@ -148,7 +156,7 @@ namespace Bearshirt
 				y = wallGrid.height - 1 - y;
 
 				int up = (int) Mathf.Min(y + 1, wallGrid.height - 1);
-				bool isPlace = wallGrid.IsEdge(x, y) && wallGrid.IsEmpty(x, up);
+				bool isPlace = wallGrid.IsEdge(x, y) && wallGrid.IsEmpty(x, up) && lavaGrid.IsEmpty(x, up);
 				if (!isPlace) return;
 
 				float px = wallMesh.left + x * wallMesh.size + (wallMesh.size / 2);
@@ -156,7 +164,6 @@ namespace Bearshirt
 				place = new Vector3(px, py, 0f);
 			});
 
-			if (door == null) door = Instantiate(Door);
 			door.transform.position = place;
 		}
 
@@ -188,7 +195,7 @@ namespace Bearshirt
 
 		private void RemoveColliders()
 		{
-			EdgeCollider2D[] edgeColliders = GetComponents<EdgeCollider2D>();
+			EdgeCollider2D[] edgeColliders = GetComponentsInChildren<EdgeCollider2D>();
 			foreach (EdgeCollider2D edgeCollider in edgeColliders)
 			{
 				Destroy(edgeCollider);
@@ -198,11 +205,19 @@ namespace Bearshirt
 		private void AddColliders()
 		{
 			RemoveColliders();
+			List<List<Vector2>> outlines;
 
-			List<List<Vector2>> outlines = wallOutlines.Generate();
+			outlines = wallOutlines.Generate();
 			outlines.ForEach((List<Vector2> outline) => {
-				EdgeCollider2D edgeCollider = gameObject.AddComponent<EdgeCollider2D>();
+				EdgeCollider2D edgeCollider = walls.gameObject.AddComponent<EdgeCollider2D>();
 				edgeCollider.points = outline.ToArray();
+			});
+
+			outlines = lavaOutlines.Generate();
+			outlines.ForEach((List<Vector2> outline) => {
+				EdgeCollider2D edgeCollider = lavas.gameObject.AddComponent<EdgeCollider2D>();
+				edgeCollider.points = outline.ToArray();
+				edgeCollider.isTrigger = true;
 			});
 		}
 	}

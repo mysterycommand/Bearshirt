@@ -5,8 +5,8 @@ namespace Bearshirt
 {
 	public class FollowTargets : MonoBehaviour
 	{
-		[HideInInspector]
-		public List<Transform> targets = new List<Transform>();
+		[SerializeField]
+		private List<Transform> targets = new List<Transform>();
 
 		void FixedUpdate()
 		{

@@ -67,13 +67,13 @@ namespace Bearshirt
 
 		void OnTriggerEnter2D(Collider2D other)
 		{
-			if (!other.gameObject.CompareTag("Door")) return;
-			GlobalState.IsAtDoor = true;
+			if (other.gameObject.CompareTag("Door")) GlobalState.IsAtDoor = true;
+			if (other.gameObject.CompareTag("Lava")) GlobalState.IsInLava = true;
 		}
 		void OnTriggerStay2D(Collider2D other)
 		{
-			if (!other.gameObject.CompareTag("Door")) return;
-			GlobalState.IsAtDoor = true;
+			if (other.gameObject.CompareTag("Door")) GlobalState.IsAtDoor = true;
+			if (other.gameObject.CompareTag("Lava")) GlobalState.IsInLava = true;
 		}
 
 		private bool IsOnGround()
