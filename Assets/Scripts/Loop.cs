@@ -4,9 +4,5 @@ namespace Bearshirt
 {
 	public class Loop : MonoBehaviour
 	{
-		void Awake()
-		{
-
-		}
 	}
 }

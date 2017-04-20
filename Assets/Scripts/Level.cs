@@ -73,15 +73,15 @@ namespace Bearshirt
 
 			if (GlobalState.Deaths == 3)
 			{
-				GlobalState.Deaths = 0;
 				GlobalState.Levels = 0;
-				GenerateLevel();
+				GenerateStart();
 			}
 
 			if (GlobalState.IsInLava)
 			{
 				GlobalState.IsInLava = false;
-				ResetLevel();
+				if (GlobalState.Levels == 0) GenerateStart();
+				else ResetLevel();
 			}
 		}
 
@@ -115,7 +115,15 @@ namespace Bearshirt
 
 		private void GenerateStart()
 		{
+			Debug.Log("GenerateStart");
+
+			GlobalState.Deaths = 0;
 			lavaDepth = 2;
+			if (!cameraTargets.Contains(door.transform))
+			{
+				cameraTargets.Add(door.transform);
+			}
+
 			int[,] start = new int[,] {
 				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,},
 				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,},
@@ -141,7 +149,6 @@ namespace Bearshirt
 				}
 			}
 
-			cameraTargets.Add(door.transform);
 			UpdateLevel();
 			PlaceHero();
 			PlaceDoor();
@@ -149,12 +156,19 @@ namespace Bearshirt
 
 		private void GenerateLevel()
 		{
+			Debug.Log("GenerateLevel");
+
 			++lavaDepth;
-			if (cameraTargets.Contains(door.transform)) cameraTargets.Remove(door.transform);
+			if (cameraTargets.Contains(door.transform))
+			{
+				cameraTargets.Remove(door.transform);
+			}
+
 			int width = 16 * Random.Range(1, 5);
 			int height = 9 * Random.Range(1, 5) + lavaDepth;
 			wallGrid.SetSize(width, height);
 			wallGrid.Generate();
+
 			UpdateLevel();
 			PlaceHero();
 			PlaceDoor();
